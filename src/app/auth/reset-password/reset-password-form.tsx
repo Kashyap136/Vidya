@@ -7,7 +7,7 @@ import { resetPasswordAction } from "@/actions/auth/password-reset";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { GraduationCap, CheckCircle2 } from "lucide-react";
 
 export function ResetPasswordForm({ token }: { token?: string }) {

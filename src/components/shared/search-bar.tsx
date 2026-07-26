@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, startTransition } from "react";
 import { Input } from "@/components/ui/input";
 
 interface SearchBarProps {
@@ -13,6 +13,18 @@ interface SearchBarProps {
 export function SearchBar({ value, onChange, placeholder = "Search...", debounceMs = 300 }: SearchBarProps) {
   const [inputValue, setInputValue] = useState(value);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const prevValueRef = useRef(value);
+  useEffect(() => {
+    if (prevValueRef.current !== value) {
+      prevValueRef.current = value;
+      startTransition(() => setInputValue(value));
+    }
+  }, [value]);
+
+  useEffect(() => {
+    return () => clearTimeout(timeoutRef.current);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;

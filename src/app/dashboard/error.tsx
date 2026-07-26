@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 
-export default function ErrorPage({
+export default function DashboardErrorPage({
   error,
   reset,
 }: {
@@ -20,9 +20,9 @@ export default function ErrorPage({
           </div>
         </div>
         <div className="space-y-2">
-          <h1 className="text-xl font-semibold">Something went wrong</h1>
+          <h1 className="text-xl font-semibold">Dashboard Error</h1>
           <p className="text-sm text-muted-foreground">
-            An unexpected error occurred. Please try again.
+            Something went wrong loading your dashboard.
           </p>
           {error.digest && (
             <p className="text-xs text-muted-foreground font-mono">
@@ -34,11 +34,10 @@ export default function ErrorPage({
           <Button onClick={() => reset()} className="gap-2">
             <RefreshCw className="h-4 w-4" /> Try again
           </Button>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
-          >
-            <Home className="h-4 w-4" /> Go to Dashboard
+          <Link href="/dashboard">
+            <Button variant="outline" className="gap-2">
+              <Home className="h-4 w-4" /> Go to Dashboard
+            </Button>
           </Link>
         </div>
       </div>

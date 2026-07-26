@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSyllabusAction, saveSyllabusTextAction, uploadPdfAction } from "@/actions";
 import { Button } from "@/components/ui/button";
@@ -28,10 +28,6 @@ export default function NewSyllabusPage() {
       router.refresh();
     }
   }, [syllabusId, router]);
-
-  useEffect(() => {
-    setError(null);
-  }, [method]);
 
   async function handleCreate() {
     if (!title.trim()) {
@@ -82,8 +78,8 @@ export default function NewSyllabusPage() {
       }
 
       setSyllabusId(newId);
-    } catch {
-      setError("An unexpected error occurred");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
       setPending(false);
     }
   }

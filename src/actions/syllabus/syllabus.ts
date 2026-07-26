@@ -660,9 +660,6 @@ export async function saveSyllabusTextAction(
 export async function processSyllabusAction(
   syllabusId: string,
 ): Promise<ActionResponse<{ topicCount: number }>> {
-  const rateLimitResult = await checkRateLimit(aiGenerationLimiter, "process-syllabus");
-  if (rateLimitResult) return rateLimitResult;
-
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -671,6 +668,9 @@ export async function processSyllabusAction(
       error: { code: "UNAUTHENTICATED", message: "You must be signed in" },
     };
   }
+
+  const rateLimitResult = await checkRateLimit(aiGenerationLimiter, `process-syllabus:${session.user.id}`);
+  if (rateLimitResult) return rateLimitResult;
 
   try {
     const result = await extractionPipeline.process(syllabusId, session.user.id, {
@@ -713,9 +713,6 @@ export async function processSyllabusAction(
 export async function retryProcessingAction(
   syllabusId: string,
 ): Promise<ActionResponse<{ topicCount: number }>> {
-  const rateLimitResult = await checkRateLimit(aiGenerationLimiter, "retry-processing");
-  if (rateLimitResult) return rateLimitResult;
-
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -724,6 +721,9 @@ export async function retryProcessingAction(
       error: { code: "UNAUTHENTICATED", message: "You must be signed in" },
     };
   }
+
+  const rateLimitResult = await checkRateLimit(aiGenerationLimiter, `retry-processing:${session.user.id}`);
+  if (rateLimitResult) return rateLimitResult;
 
   try {
     const result = await extractionPipeline.retry(syllabusId, session.user.id, {
@@ -787,7 +787,11 @@ export async function getDashboardDataAction(): Promise<
         try {
           const progress = await topicService.getProgressStats(syllabus.id as string, session.user.id);
           return { ...syllabus, topicsProgress: progress };
-        } catch {
+        } catch (err) {
+          logger.warn("[getDashboardDataAction] Failed to fetch progress for syllabus", {
+            syllabusId: syllabus.id,
+            error: err instanceof Error ? err.message : String(err),
+          });
           return syllabus;
         }
       }),

@@ -3,7 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -87,6 +89,8 @@ model User {
   updatedStudyDays    StudyDay[]         @relation("StudyDayUpdatedBy")
   createdStudyTasks   StudyTask[]        @relation("StudyTaskCreatedBy")
   updatedStudyTasks   StudyTask[]        @relation("StudyTaskUpdatedBy")
+
+  @@index([deletedAt])
 }
 
 model Account {
@@ -187,6 +191,9 @@ model Syllabus {
 
   @@unique([userId, title])
   @@index([userId])
+  @@index([deletedAt])
+  @@index([processingStatus])
+  @@index([userId, processingStatus])
 }
 
 model Topic {
@@ -216,6 +223,7 @@ model Topic {
   @@index([syllabusId])
   @@index([priority])
   @@index([syllabusId, order])
+  @@index([deletedAt])
 }
 
 model Quiz {
@@ -237,6 +245,8 @@ model Quiz {
   questions     QuizQuestion[]
   attempts      QuizAttempt[]
 
+  @@index([syllabusId])
+  @@index([deletedAt])
 }
 
 model QuizQuestion {
@@ -264,6 +274,7 @@ model QuizQuestion {
   @@index([quizId])
   @@index([topicId])
   @@index([quizId, order])
+  @@index([deletedAt])
 }
 
 model QuizAttempt {
@@ -289,6 +300,7 @@ model QuizAttempt {
 
   @@index([userId, createdAt])
   @@index([quizId])
+  @@index([deletedAt])
 }
 
 model StudyPlan {
@@ -342,6 +354,7 @@ model StudyDay {
   @@unique([studyPlanId, date])
   @@index([studyPlanId])
   @@index([date])
+  @@index([studyPlanId, date])
 }
 
 model StudyTask {
@@ -365,4 +378,5 @@ model StudyTask {
 
   @@index([studyDayId])
   @@index([topicId])
+  @@index([studyDayId, order])
 }

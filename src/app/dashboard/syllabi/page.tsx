@@ -59,8 +59,8 @@ export default function SyllabiPage() {
 
       setSyllabuses(data.items);
       setPageState("loaded");
-    } catch {
-      setError("Failed to load syllabuses");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load syllabuses");
       setPageState("error");
     }
   }, [statusFilter, sortFilter]);
@@ -97,45 +97,45 @@ export default function SyllabiPage() {
   const handleRestore = async (syllabus: Record<string, unknown>) => {
     const syllabusId = syllabus?.id;
     if (!syllabusId) return;
-    setActionLoading(true);
-    try {
-      await restoreSyllabusAction(syllabusId as string);
-      router.refresh();
-      fetchSyllabuses();
-    } catch {
-      setError("Failed to restore syllabus");
-    }
-    setActionLoading(false);
+      setActionLoading(true);
+      try {
+        await restoreSyllabusAction(syllabusId as string);
+        router.refresh();
+        fetchSyllabuses();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to restore syllabus");
+      }
+      setActionLoading(false);
   };
 
   const confirmArchive = async () => {
     const syllabusId = selectedSyllabus?.id;
     if (!syllabusId) return;
-    setActionLoading(true);
-    try {
-      await archiveSyllabusAction(syllabusId as string);
-      setDialog(null);
-      router.refresh();
-      fetchSyllabuses();
-    } catch {
-      setError("Failed to archive syllabus");
-    }
-    setActionLoading(false);
+      setActionLoading(true);
+      try {
+        await archiveSyllabusAction(syllabusId as string);
+        setDialog(null);
+        router.refresh();
+        fetchSyllabuses();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to archive syllabus");
+      }
+      setActionLoading(false);
   };
 
   const confirmDelete = async () => {
     const syllabusId = selectedSyllabus?.id;
     if (!syllabusId) return;
-    setActionLoading(true);
-    try {
-      await deleteSyllabusAction(syllabusId as string);
-      setDialog(null);
-      router.refresh();
-      fetchSyllabuses();
-    } catch {
-      setError("Failed to delete syllabus");
-    }
-    setActionLoading(false);
+      setActionLoading(true);
+      try {
+        await deleteSyllabusAction(syllabusId as string);
+        setDialog(null);
+        router.refresh();
+        fetchSyllabuses();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to delete syllabus");
+      }
+      setActionLoading(false);
   };
 
   const filteredSyllabuses = syllabuses.filter((s) => {

@@ -76,6 +76,7 @@ export async function getClientIp(): Promise<string> {
       return forwarded.split(",")[0].trim();
     }
   } catch {
+    // headers() not available in this context, fall back to unknown
   }
   return "unknown";
 }

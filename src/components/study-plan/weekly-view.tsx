@@ -10,6 +10,7 @@ interface WeeklyViewProps {
     totalMinutes: number;
     isComplete: boolean;
   }>;
+  referenceDate?: string;
 }
 
 function getWeekDays(reference: Date): Date[] {
@@ -25,8 +26,8 @@ function getWeekDays(reference: Date): Date[] {
   return days;
 }
 
-export function WeeklyView({ days }: WeeklyViewProps) {
-  const weekDays = getWeekDays(new Date());
+export function WeeklyView({ days, referenceDate }: WeeklyViewProps) {
+  const weekDays = getWeekDays(referenceDate ? new Date(referenceDate) : new Date());
   const dayMap = new Map(
     days.map((d) => [new Date(d.date).toISOString().slice(0, 10), d]),
   );

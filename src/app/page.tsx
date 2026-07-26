@@ -196,7 +196,7 @@ export default async function LandingPage() {
                 icon: Shield,
                 gradient: "from-cyan-500/10 to-transparent",
               },
-            ].map((feature, i) => (
+            ].map((feature) => (
               <div
                 key={feature.title}
                 className="group rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:border-primary/20 hover:-translate-y-0.5"
@@ -387,8 +387,8 @@ export default async function LandingPage() {
                 q: "Is there a mobile app?",
                 a: "Not yet, but Vidya is fully responsive and works great on mobile browsers. A native app is on our roadmap.",
               },
-            ].map((faq, i) => (
-              <details key={i} className="group rounded-xl border bg-card p-5 [&[open]]:shadow-sm transition-shadow">
+            ].map((faq) => (
+              <details key={faq.q} className="group rounded-xl border bg-card p-5 [&[open]]:shadow-sm transition-shadow">
                 <summary className="flex items-center justify-between cursor-pointer list-none">
                   <span className="font-medium text-sm">{faq.q}</span>
                   <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />

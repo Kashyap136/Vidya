@@ -6,12 +6,15 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { QuizCard } from "@/components/quiz/quiz-card";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Brain, ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { GenerateQuizButton } from "./generate-quiz-button";
 
 export default async function QuizListPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const syllabusResult = await getSyllabusAction(id);
+  const [syllabusResult, quizzesResult] = await Promise.all([
+    getSyllabusAction(id),
+    listQuizzesAction(id),
+  ]);
 
   if (!syllabusResult.success) {
     if (syllabusResult.error.code === "NOT_FOUND") { notFound(); }
@@ -28,7 +31,6 @@ export default async function QuizListPage({ params }: { params: Promise<{ id: s
   }
 
   const syllabus = syllabusResult.data;
-  const quizzesResult = await listQuizzesAction(id);
   const quizzes = quizzesResult.success ? (quizzesResult.data as Record<string, unknown>[]) : [];
 
   return (

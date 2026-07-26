@@ -37,7 +37,7 @@ export const geminiService = {
       try {
         const parsed = JSON.parse(text) as object;
         return parsed;
-      } catch (parseError) {
+      } catch {
         logger.error("[Gemini] Invalid JSON", { responsePreview: text.slice(0, 500) });
         throw new ServiceError("Gemini returned invalid JSON", "AI_INVALID_JSON", 422);
       }

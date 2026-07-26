@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
 import { Button } from "@/components/ui/button";
@@ -67,7 +67,7 @@ export function QuizTaker({
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [score, setScore] = useState(latestAttempt?.score ?? 0);
+  const [_score, setScore] = useState(latestAttempt?.score ?? 0);
   const [submittedAnswers, setSubmittedAnswers] = useState<Array<{
     questionId: string;
     selectedOptionIndex: number;
@@ -92,7 +92,11 @@ export function QuizTaker({
   }, [quizId, latestAttempt]);
 
   useEffect(() => {
-    fetchQuestions();
+    startTransition(() => {
+      fetchQuestions().catch((err) => {
+        console.error("Failed to fetch questions:", err);
+      });
+    });
   }, [fetchQuestions]);
 
   useEffect(() => {
@@ -105,6 +109,7 @@ export function QuizTaker({
   }, [phase, startTime]);
 
   function handleStart() {
+    if (questions.length === 0) return;
     setPhase("taking");
     setStartTime(Date.now());
   }
@@ -172,7 +177,7 @@ export function QuizTaker({
     router.push(`/dashboard/syllabi/${syllabusId}/quiz`);
   }
 
-  function handleRetake() {
+  async function handleRetake() {
     setPhase("start");
     setCurrentIndex(0);
     setStartTime(null);
@@ -180,7 +185,7 @@ export function QuizTaker({
     setShowConfirm(false);
     setSubmittedAnswers(null);
     setAnswers([]);
-    fetchQuestions();
+    await fetchQuestions();
   }
 
   const answeredCount = answers.filter((a) => a !== null).length;

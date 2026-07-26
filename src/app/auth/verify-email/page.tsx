@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { CardTitle, CardDescription } from "@/components/ui/card";
 import { verificationService } from "@/services";
 import { CheckCircle2, XCircle, Mail } from "lucide-react";
 

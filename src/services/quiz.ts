@@ -42,7 +42,11 @@ export const quizService = {
     const prompt = quizPromptBuilderService.build(topics);
 
     const rawResponse = await geminiService.generate(prompt);
-    const validated = quizResponseSchema.parse(rawResponse);
+    const parsed = quizResponseSchema.safeParse(rawResponse);
+    if (!parsed.success) {
+      throw new ValidationError("AI response validation failed: invalid quiz format");
+    }
+    const validated = parsed.data;
 
     const topicMap = new Map(topics.map((t) => [t.title.toLowerCase(), t]));
 
@@ -61,7 +65,7 @@ export const quizService = {
 
         for (let i = 0; i < validated.questions.length; i++) {
           const q = validated.questions[i];
-          const matchedTopic = topicMap.get(q.topicTitle.toLowerCase());
+          const matchedTopic = topicMap.get((q.topicTitle ?? "").toLowerCase());
           const correctIndex = q.options.findIndex((o) => o.isCorrect);
 
           await tx.quizQuestion.create({

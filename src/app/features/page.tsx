@@ -2,7 +2,6 @@ import { auth } from "@/auth/config";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/shared/page-header";
 import { Brain, Sparkles, BarChart3, BookOpen, Zap, Shield, ArrowRight, CheckCircle2 } from "lucide-react";
 
 const features = [
@@ -71,7 +70,7 @@ export default async function FeaturesPage() {
       <div className="px-4 pb-20">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((f, i) => (
+            {features.map((f) => (
               <div
                 key={f.title}
                 className="group rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:border-primary/20 hover:-translate-y-0.5"

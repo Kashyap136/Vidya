@@ -14,7 +14,12 @@ export default async function StudyPlanPage({
   params: Promise<{ id: string }>;
 }) {
   const { id: syllabusId } = await params;
-  const syllabusResult = await getSyllabusAction(syllabusId);
+  const [syllabusResult, planResult, statsResult, topicsResult] = await Promise.all([
+    getSyllabusAction(syllabusId),
+    getPlanAction(syllabusId),
+    getPlanStatsAction(syllabusId),
+    listTopicsAction(syllabusId),
+  ]);
 
   if (!syllabusResult.success) {
     if (syllabusResult.error.code === "NOT_FOUND") {
@@ -43,16 +48,13 @@ export default async function StudyPlanPage({
   const errorMessage = syllabus.errorMessage as string | null;
   const failedStep = syllabus.failedStep as string | null;
 
-  const planResult = await getPlanAction(syllabusId);
   const plan = planResult.success ? planResult.data : null;
 
-  const statsResult = await getPlanStatsAction(syllabusId);
   const stats = statsResult.success ? statsResult.data : {
     totalMinutes: 0, completedMinutes: 0, totalTasks: 0, completedTasks: 0,
     totalDays: 0, completedDays: 0, streak: 0, daysRemaining: 0,
   };
 
-  const topicsResult = await listTopicsAction(syllabusId);
   const topics = topicsResult.success ? (topicsResult.data as Record<string, unknown>[]) : [];
 
   const isProcessing = ["UPLOADED", "EXTRACTING", "EXTRACTED", "GENERATING_TOPICS", "TOPICS_CREATED", "GENERATING_PLAN"].includes(status);

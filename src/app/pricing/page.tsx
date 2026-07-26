@@ -48,7 +48,7 @@ const plans = [
       "Admin dashboard",
     ],
     cta: "Contact Sales",
-    href: "/contact",
+    href: "mailto:sales@vidya.local",
     featured: false,
   },
 ];

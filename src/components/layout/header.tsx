@@ -41,9 +41,13 @@ export function Header({ user }: HeaderProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const prevPathname = useRef(pathname);
   useEffect(() => {
-    setMobileNavOpen(false);
-    setMenuOpen(false);
+    if (prevPathname.current !== pathname) {
+      prevPathname.current = pathname;
+      setMobileNavOpen(false);
+      setMenuOpen(false);
+    }
   }, [pathname]);
 
   const initials = user?.name

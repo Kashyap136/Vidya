@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState, startTransition } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { getSyllabusAction, renameSyllabusAction } from "@/actions";
 import { Button } from "@/components/ui/button";
@@ -19,22 +19,29 @@ export default function EditSyllabusPage() {
   const [fetchError, setFetchError] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
     if (!id) {
-      setFetchError("Invalid syllabus ID");
-      setLoading(false);
+      startTransition(() => {
+        setFetchError("Invalid syllabus ID");
+        setLoading(false);
+      });
       return;
     }
     async function load() {
-      setLoading(true);
+      startTransition(() => setLoading(true));
       const result = await getSyllabusAction(id);
-      if (result.success) {
-        setSyllabus(result.data);
-      } else {
-        setFetchError(result.error.message);
-      }
-      setLoading(false);
+      if (cancelled) return;
+      startTransition(() => {
+        if (result.success) {
+          setSyllabus(result.data);
+        } else {
+          setFetchError(result.error.message);
+        }
+        setLoading(false);
+      });
     }
     load();
+    return () => { cancelled = true; };
   }, [id]);
 
   const [state, formAction, pending] = useActionState(

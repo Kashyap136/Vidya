@@ -8,7 +8,6 @@ import type { ActionResponse } from "@/types";
 
 const updateProfileSchema = z.object({
   name: z.string().min(2).max(100).trim().optional(),
-  email: z.email("Invalid email address").optional(),
 });
 
 export async function getProfileAction(): Promise<

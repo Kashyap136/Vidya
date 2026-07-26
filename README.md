@@ -71,6 +71,12 @@ Required variables (see `.env.example`):
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
 | `GEMINI_API_KEY` | Google Gemini API key |
 | `NEXT_PUBLIC_APP_URL` | Public application URL |
+| `SMTP_HOST` | SMTP server hostname (for email verification) |
+| `SMTP_PORT` | SMTP server port (465 for SSL, 587 for TLS) |
+| `SMTP_USER` | SMTP username |
+| `SMTP_PASS` | SMTP password |
+| `SMTP_FROM` | From address for outgoing emails |
+| `AUTH_TRUST_HOST` | Set `true` in production when behind a proxy |
 
 ## Scripts
 
@@ -90,11 +96,36 @@ Required variables (see `.env.example`):
 
 ## Production Deployment
 
-1. Configure all environment variables in Vercel
-2. Run `npx prisma migrate deploy` to apply migrations
-3. Deploy via Vercel (auto-deploys from `main` branch)
-4. Verify health check at `NEXT_PUBLIC_APP_URL`
-5. Monitor logs and error rates
+### Prerequisites
+
+- Vercel account (or Node.js 20+ hosting)
+- Supabase project (PostgreSQL + Storage buckets)
+- Google Gemini API key with billing enabled
+- Google OAuth credentials (Web application type)
+- SMTP credentials for email verification
+
+### Steps
+
+1. **Environment:** Configure all environment variables in Vercel project settings
+2. **Database:** Run `npx prisma migrate deploy` to apply migrations
+3. **Storage:** Create `syllabi` bucket in Supabase Storage (public or with RLS)
+4. **Auth:** Configure Google OAuth redirect URIs to include `{YOUR_URL}/api/auth/callback/google`
+5. **Deploy:** Deploy via Vercel (auto-deploys from `main` branch)
+6. **Verify:** Health check at `NEXT_PUBLIC_APP_URL/api/health`
+7. **Monitor:** Check Vercel logs and error rates post-deployment
+
+### Post-Deployment Checklist
+
+- [ ] SMTP email sending works (verify registration flow)
+- [ ] Google OAuth login works
+- [ ] PDF upload and processing pipeline completes
+- [ ] Text syllabus creation succeeds
+- [ ] Gemini AI generates topics and quizzes
+- [ ] Study plan generation works
+- [ ] Study day task completion persists
+- [ ] Quiz scoring and history is accurate
+- [ ] Progress tracking updates in real-time
+- [ ] Logout and re-login preserves all data
 
 ## Security
 

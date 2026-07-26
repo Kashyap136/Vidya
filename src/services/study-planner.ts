@@ -513,6 +513,7 @@ export const studyPlanner = {
     const allDays = await prisma.studyDay.findMany({
       where: { studyPlanId: day.studyPlanId },
       include: { _count: { select: { tasks: true } } },
+      orderBy: { date: "asc" },
     });
 
     const totalTasks = allDays.reduce(

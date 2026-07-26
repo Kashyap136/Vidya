@@ -26,6 +26,7 @@ interface PlanGeneratorProps {
 export function PlanGenerator({ syllabusId, topics }: PlanGeneratorProps) {
   const router = useRouter();
   const [dailyMinutes, setDailyMinutes] = useState(120);
+  const [minDate] = useState(() => new Date(Date.now() + 86400000).toISOString().slice(0, 10));
   const [targetDate, setTargetDate] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
@@ -127,7 +128,7 @@ export function PlanGenerator({ syllabusId, topics }: PlanGeneratorProps) {
                   type="date"
                   value={targetDate}
                   onChange={(e) => setTargetDate(e.target.value)}
-                  min={new Date(Date.now() + 86400000).toISOString().slice(0, 10)}
+                  min={minDate}
                 />
                 <p className="text-xs text-muted-foreground">
                   When do you want to finish studying? Plan will include ~20% buffer days.

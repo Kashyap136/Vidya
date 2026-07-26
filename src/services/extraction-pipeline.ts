@@ -49,7 +49,7 @@ export const extractionPipeline = {
       return result;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown pipeline error";
-      const stack = error instanceof Error ? error.stack : "";
+      const _stack = error instanceof Error ? error.stack : "";
       const failedStep = determineFailedStep(error);
 
       logger.error("[Pipeline] Pipeline FAILED", {

@@ -9,17 +9,17 @@ export default function GlobalError({
 }) {
   return (
     <html>
-      <body>
-        <div className="flex min-h-screen flex-col items-center justify-center gap-4 text-center p-8">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight">Critical Error</h1>
-            <p className="text-muted-foreground">
+      <body style={bodyStyle}>
+        <div style={containerStyle}>
+          <div style={contentStyle}>
+            <h1 style={headingStyle}>Critical Error</h1>
+            <p style={textStyle}>
               The application encountered a critical error. Please refresh the page.
             </p>
           </div>
           <button
             onClick={() => reset()}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            style={buttonStyle}
           >
             Refresh page
           </button>
@@ -28,3 +28,53 @@ export default function GlobalError({
     </html>
   );
 }
+
+const bodyStyle: React.CSSProperties = {
+  margin: 0,
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+};
+
+const containerStyle: React.CSSProperties = {
+  display: "flex",
+  minHeight: "100vh",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "16px",
+  textAlign: "center",
+  padding: "32px",
+};
+
+const contentStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "8px",
+};
+
+const headingStyle: React.CSSProperties = {
+  fontSize: "36px",
+  fontWeight: 700,
+  letterSpacing: "-0.025em",
+  margin: 0,
+  color: "#111",
+};
+
+const textStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: "16px",
+  color: "#666",
+};
+
+const buttonStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: "6px",
+  border: "none",
+  backgroundColor: "#000",
+  color: "#fff",
+  padding: "8px 16px",
+  fontSize: "14px",
+  fontWeight: 500,
+  cursor: "pointer",
+};

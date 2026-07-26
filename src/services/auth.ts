@@ -42,7 +42,8 @@ export const authService = {
       throw new AuthenticationError();
     }
 
-    return user;
+    const { password: _pw, ...safeUser } = user;
+    return safeUser;
   },
 
   async oauthSignIn(

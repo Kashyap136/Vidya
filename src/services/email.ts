@@ -42,6 +42,10 @@ function buildEmailContent(
   };
 }
 
+function escapeHtml(text: string): string {
+  return text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+}
+
 function getAppUrl(): string {
   return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 }
@@ -54,7 +58,7 @@ export async function sendVerificationEmail(
   const link = `${getAppUrl()}/auth/verify-email?token=${token}`;
 
   const html = `
-<p>Hi ${name},</p>
+<p>Hi ${escapeHtml(name)},</p>
 <p>Verify your email address by clicking the link below:</p>
 <p><a href="${link}">${link}</a></p>
 <p>This link expires in 24 hours.</p>
@@ -82,7 +86,7 @@ export async function sendPasswordResetEmail(
   const link = `${getAppUrl()}/auth/reset-password?token=${token}`;
 
   const html = `
-<p>Hi ${name},</p>
+<p>Hi ${escapeHtml(name)},</p>
 <p>Reset your password by clicking the link below:</p>
 <p><a href="${link}">${link}</a></p>
 <p>This link expires in 1 hour.</p>

@@ -21,8 +21,8 @@ export function GenerateQuizButton({ syllabusId }: { syllabusId: string }) {
       } else {
         setError(result.error.message);
       }
-    } catch {
-      setError("Failed to generate quiz");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to generate quiz");
     }
     setPending(false);
   }

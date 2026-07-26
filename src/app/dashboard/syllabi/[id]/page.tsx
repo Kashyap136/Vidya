@@ -8,11 +8,14 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { PdfSection } from "@/components/syllabus/pdf-section";
 import { TopicExplorer } from "@/components/topic/topic-explorer";
-import { BookOpen, FileText, Brain, ArrowLeft, Loader2 } from "lucide-react";
+import { BookOpen, FileText, Brain, ArrowLeft } from "lucide-react";
 
 export default async function SyllabusDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const result = await getSyllabusAction(id);
+  const [result, topicsResult] = await Promise.all([
+    getSyllabusAction(id),
+    listTopicsAction(id),
+  ]);
 
   if (!result.success) {
     if (result.error.code === "NOT_FOUND") { notFound(); }
@@ -45,7 +48,6 @@ export default async function SyllabusDetailPage({ params }: { params: Promise<{
 
   const fileInfo = fileName && filePath ? { fileName, fileSize, mimeType, uploadedAt, filePath } : null;
 
-  const topicsResult = await listTopicsAction(id);
   const topics = topicsResult.success ? (topicsResult.data as Record<string, unknown>[]) : [];
 
   return (

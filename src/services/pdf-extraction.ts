@@ -28,8 +28,9 @@ export const pdfExtractionService = {
     try {
       parser = new PDFParse({ verbosity: VerbosityLevel.ERRORS, data: buffer });
 
-      // @ts-expect-error - load() is accessible at runtime despite TS private
-      await withTimeout(parser.load(), EXTRACTION_TIMEOUT_MS, "load");
+      // Access the internal load method
+      const loadPromise = (parser as unknown as { load(): Promise<unknown> }).load();
+      await withTimeout(loadPromise, EXTRACTION_TIMEOUT_MS, "load");
 
       const textResult = await withTimeout(parser.getText(), EXTRACTION_TIMEOUT_MS, "getText");
       const typedResult = textResult as unknown as { pages: { text: string; num: number }[] };

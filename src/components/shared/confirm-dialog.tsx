@@ -32,13 +32,14 @@ export function ConfirmDialog({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirm-dialog-title"
+      onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}
     >
       <Card
         className="w-full max-w-sm"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-dialog-title"
       >
         <CardHeader>
           <CardTitle id="confirm-dialog-title">{title}</CardTitle>

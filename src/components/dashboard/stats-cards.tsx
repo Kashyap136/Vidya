@@ -1,4 +1,4 @@
-import { BookOpen, Activity, Archive, TrendingUp, Clock, Brain } from "lucide-react";
+import { BookOpen, Activity, Archive } from "lucide-react";
 import { StatsCard } from "@/components/shared/stats-card";
 
 interface StatsCardsProps {

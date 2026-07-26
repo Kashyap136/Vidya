@@ -46,11 +46,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const now = Math.floor(Date.now() / 1000);
         const lastVerified = (token.userVerifiedAt as number) ?? 0;
         if (now - lastVerified > 300) {
-          const exists = await prisma.user.findUnique({
-            where: { id: token.id as string },
-            select: { deletedAt: true },
-          });
-          if (!exists || exists.deletedAt) {
+          try {
+            const exists = await prisma.user.findUnique({
+              where: { id: token.id as string },
+              select: { deletedAt: true },
+            });
+            if (!exists || exists.deletedAt) {
+              return null;
+            }
+          } catch {
             return null;
           }
           token.userVerifiedAt = now;

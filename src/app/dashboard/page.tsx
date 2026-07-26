@@ -14,7 +14,10 @@ import { Button } from "@/components/ui/button";
 
 async function DashboardContent() {
   const session = await auth();
-  const result = await getDashboardDataAction();
+  const [result, todayPlanResult] = await Promise.all([
+    getDashboardDataAction(),
+    getTodayPlanAction(),
+  ]);
 
   if (!result.success) {
     return (
@@ -29,15 +32,10 @@ async function DashboardContent() {
   }
 
   const { stats, recentSyllabuses } = result.data;
-  const todayPlanResult = await getTodayPlanAction();
 
   const activeSyllabuses = recentSyllabuses.filter(
     (s) => (s.topicsProgress as Record<string, unknown> | undefined) != null,
   );
-
-  const name = session?.user?.name || "Student";
-
-  const syllabusCount = String(stats.total);
 
   return (
     <div className="space-y-8">
@@ -140,9 +138,9 @@ async function DashboardContent() {
                       <GraduationCap className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div className="min-w-0">
-                      <a href={`/dashboard/syllabi/${syllabus.id as string}`} className="font-medium hover:text-primary transition-colors text-sm truncate block">
+                      <Link href={`/dashboard/syllabi/${syllabus.id as string}`} className="font-medium hover:text-primary transition-colors text-sm truncate block">
                         {syllabus.title as string}
-                      </a>
+                      </Link>
                       <p className="text-xs text-muted-foreground">
                         {syllabus.createdAt ? new Date(syllabus.createdAt as string).toLocaleDateString() : ""}
                       </p>

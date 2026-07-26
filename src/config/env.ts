@@ -26,9 +26,14 @@ function validateEnv(): void {
   }
 
   if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missing.join(", ")}.\n` +
-      `Set them in .env.local or your deployment environment.`,
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        `Missing required environment variables: ${missing.join(", ")}.\n` +
+        `Set them in .env.local or your deployment environment.`,
+      );
+    }
+    console.warn(
+      `[env] Missing env vars (${missing.join(", ")}) - continuing with defaults`,
     );
   }
 
@@ -47,7 +52,7 @@ function validateEnv(): void {
   }
 }
 
-validateEnv();
+void validateEnv();
 
 export const env = {
   smtpHost: process.env.SMTP_HOST as string | undefined,

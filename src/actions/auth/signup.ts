@@ -40,11 +40,17 @@ export async function registerAction(
     });
 
     if (token) {
-      await sendVerificationEmail(
+      const sent = await sendVerificationEmail(
         parsed.data.email,
         (user.name as string) ?? parsed.data.email,
         token,
       );
+      if (!sent.sent) {
+        return {
+          success: false,
+          error: { code: "EMAIL_FAILED", message: sent.error ?? "Failed to send verification email" },
+        };
+      }
     } else {
       logger.warn("Verification token not created", { email: parsed.data.email });
     }

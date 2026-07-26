@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { TrendingUp, Flame } from "lucide-react";
 
 interface DashboardGreetingProps {
@@ -16,13 +15,7 @@ function getGreeting(): string {
 }
 
 export function DashboardGreeting({ session, stats }: DashboardGreetingProps) {
-  const [greeting, setGreeting] = useState("Good morning");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setGreeting(getGreeting());
-    setMounted(true);
-  }, []);
+  const greeting = getGreeting();
 
   const name = session?.user?.name || "Student";
 
@@ -46,18 +39,14 @@ export function DashboardGreeting({ session, stats }: DashboardGreetingProps) {
           </div>
         </div>
         <div className="flex items-center gap-4 text-sm">
-          {mounted && (
-            <>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Flame className="h-4 w-4 text-orange-500" />
-                <span><strong className="text-foreground">0</strong> day streak</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <TrendingUp className="h-4 w-4 text-success" />
-                <span><strong className="text-foreground">{stats?.total ?? 0}</strong> syllabuses</span>
-              </div>
-            </>
-          )}
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Flame className="h-4 w-4 text-orange-500" />
+            <span><strong className="text-foreground">0</strong> day streak</span>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <TrendingUp className="h-4 w-4 text-success" />
+            <span><strong className="text-foreground">{stats?.total ?? 0}</strong> syllabuses</span>
+          </div>
         </div>
       </div>
     </div>
