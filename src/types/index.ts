@@ -5,8 +5,13 @@ export type ActionResponse<T = unknown> =
 export type ProcessingStatus =
   | "UPLOADED"
   | "EXTRACTING"
-  | "PARSING"
-  | "GENERATING"
+  | "EXTRACTED"
+  | "GENERATING_TOPICS"
+  | "TOPICS_CREATED"
+  | "GENERATING_PLAN"
+  | "PLAN_CREATED"
+  | "GENERATING_QUIZ"
+  | "QUIZ_CREATED"
   | "COMPLETED"
   | "FAILED";
 

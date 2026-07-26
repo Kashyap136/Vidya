@@ -1,35 +1,59 @@
-import { z } from "zod";
+const REQUIRED_VARS = [
+  "DATABASE_URL",
+  "AUTH_SECRET",
+  "AUTH_URL",
+  "GOOGLE_CLIENT_ID",
+  "GOOGLE_CLIENT_SECRET",
+  "GEMINI_API_KEY",
+  "NEXT_PUBLIC_APP_URL",
+] as const;
 
-const envSchema = z.object({
-  DATABASE_URL: z.string().url(),
-  DIRECT_URL: z.string().url(),
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  AUTH_SECRET: z.string().min(32),
-  AUTH_URL: z.string().url(),
-  GOOGLE_CLIENT_ID: z.string().min(1),
-  GOOGLE_CLIENT_SECRET: z.string().min(1),
-  GEMINI_API_KEY: z.string().min(1),
-  NEXT_PUBLIC_APP_URL: z.string().url(),
-  NODE_ENV: z
-    .enum(["development", "production", "test"])
-    .default("development"),
-});
+const EMAIL_VARS = [
+  "SMTP_HOST",
+  "SMTP_PORT",
+  "SMTP_USER",
+  "SMTP_PASS",
+  "SMTP_FROM",
+] as const;
 
-function validateEnv(): ReturnType<typeof envSchema.parse> {
-  const result = envSchema.safeParse(process.env);
+function validateEnv(): void {
+  const missing: string[] = [];
 
-  if (!result.success) {
-    const missingVars = result.error.issues
-      .map((issue) => issue.path.join("."))
-      .join(", ");
+  for (const key of REQUIRED_VARS) {
+    if (!process.env[key]) {
+      missing.push(key);
+    }
+  }
+
+  if (missing.length > 0) {
     throw new Error(
-      `Environment validation failed. Missing or invalid variables: ${missingVars}`
+      `Missing required environment variables: ${missing.join(", ")}.\n` +
+      `Set them in .env.local or your deployment environment.`,
     );
   }
 
-  return result.data;
+  const emailMissing: string[] = [];
+  for (const key of EMAIL_VARS) {
+    if (!process.env[key]) {
+      emailMissing.push(key);
+    }
+  }
+
+  if (emailMissing.length > 0) {
+    console.warn(
+      `[env] Email sending disabled: missing ${emailMissing.join(", ")}.\n` +
+      `Set these in .env.local to enable email verification and password reset emails.`,
+    );
+  }
 }
 
-export const env = validateEnv();
+validateEnv();
+
+export const env = {
+  smtpHost: process.env.SMTP_HOST as string | undefined,
+  smtpPort: parseInt(process.env.SMTP_PORT ?? "587", 10),
+  smtpUser: process.env.SMTP_USER as string | undefined,
+  smtpPass: process.env.SMTP_PASS as string | undefined,
+  smtpFrom: process.env.SMTP_FROM as string | undefined,
+  emailEnabled: !!(process.env.SMTP_HOST && process.env.SMTP_PORT && process.env.SMTP_USER && process.env.SMTP_PASS && process.env.SMTP_FROM),
+} as const;
