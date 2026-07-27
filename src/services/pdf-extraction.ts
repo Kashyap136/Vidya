@@ -1,9 +1,6 @@
-import { createRequire } from "module";
 import { ValidationError } from "./errors";
 import { logger } from "@/lib/logger";
 import type { ExtractionResult } from "@/types/ai";
-
-const _require = createRequire(import.meta.url);
 
 export const EXTRACTION_TIMEOUT_MS = 30_000;
 export const MAX_PAGE_COUNT = 200;
@@ -95,9 +92,17 @@ let pdfjsInstance: typeof import("pdfjs-dist/legacy/build/pdf.mjs") | null = nul
 async function getPdfJs(): Promise<typeof import("pdfjs-dist/legacy/build/pdf.mjs")> {
   if (!pdfjsInstance) {
     ensureDOMMatrix();
-    pdfjsInstance = await import("pdfjs-dist/legacy/build/pdf.mjs");
-    const workerPath = _require.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs");
-    pdfjsInstance.GlobalWorkerOptions.workerSrc = workerPath;
+
+    const [pdfjs, workerModule] = await Promise.all([
+      import("pdfjs-dist/legacy/build/pdf.mjs") as Promise<typeof import("pdfjs-dist/legacy/build/pdf.mjs")>,
+      import("pdfjs-dist/legacy/build/pdf.worker.mjs") as Promise<{ WorkerMessageHandler: unknown }>,
+    ]);
+
+    (globalThis as Record<string, unknown>).pdfjsWorker = {
+      WorkerMessageHandler: workerModule.WorkerMessageHandler,
+    };
+
+    pdfjsInstance = pdfjs;
   }
   return pdfjsInstance;
 }
@@ -114,7 +119,7 @@ export const pdfExtractionService = {
     const pdfjs = await getPdfJs();
 
     try {
-      const doc = await pdfjs.getDocument({ data, useWorkerFetch: false, disableStream: true }).promise;
+      const doc = await pdfjs.getDocument({ data }).promise;
       const pageCount = doc.numPages;
 
       if (pageCount === 0) {
