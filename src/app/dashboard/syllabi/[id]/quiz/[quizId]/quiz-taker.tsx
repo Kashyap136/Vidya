@@ -45,6 +45,7 @@ interface QuestionWithAnswer extends QuestionData {
   options: { text: string; isCorrect?: boolean }[];
   explanation: string | null;
   topicId: string | null;
+  topicTitle: string | null;
 }
 
 type Phase = "start" | "taking" | "reviewing" | "results";
@@ -75,7 +76,8 @@ export function QuizTaker({
   }> | null>(latestAttempt?.answers ?? null);
 
   const fetchQuestions = useCallback(async () => {
-    const result = await getQuizQuestionsAction(quizId, false);
+    const includeAnswers = !!latestAttempt;
+    const result = await getQuizQuestionsAction(quizId, includeAnswers);
     if (result.success && result.data) {
       const qs = result.data as unknown as QuestionWithAnswer[];
       setQuestions(qs);
@@ -203,7 +205,7 @@ export function QuizTaker({
     if (!submittedAnswers) return [];
     const map = new Map<string, { correct: number; total: number }>();
     questions.forEach((q) => {
-      const topicName = q.topicId || "General";
+      const topicName = q.topicTitle || q.topicId || "General";
       const entry = map.get(topicName) || { correct: 0, total: 0 };
       entry.total++;
       const answer = submittedAnswers.find((a) => a.questionId === q.id);

@@ -143,6 +143,7 @@ export const quizService = {
     const questions = await prisma.quizQuestion.findMany({
       where: { quizId, deletedAt: null },
       orderBy: { order: "asc" },
+      include: { topic: { select: { title: true } } },
     });
 
     return questions.map((q) => {
@@ -153,6 +154,7 @@ export const quizService = {
         id: q.id,
         quizId: q.quizId,
         topicId: q.topicId,
+        topicTitle: q.topic?.title ?? null,
         questionText: q.questionText,
         options: includeAnswers
           ? options

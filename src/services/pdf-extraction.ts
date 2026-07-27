@@ -93,6 +93,7 @@ async function getPdfJs(): Promise<typeof import("pdfjs-dist/legacy/build/pdf.mj
   if (!pdfjsInstance) {
     ensureDOMMatrix();
     pdfjsInstance = await import("pdfjs-dist/legacy/build/pdf.mjs");
+    pdfjsInstance.GlobalWorkerOptions.workerSrc = "";
   }
   return pdfjsInstance;
 }
@@ -109,7 +110,7 @@ export const pdfExtractionService = {
     const pdfjs = await getPdfJs();
 
     try {
-      const doc = await pdfjs.getDocument({ data }).promise;
+      const doc = await pdfjs.getDocument({ data, useWorkerFetch: false, disableStream: true }).promise;
       const pageCount = doc.numPages;
 
       if (pageCount === 0) {
