@@ -50,6 +50,34 @@ export const quizService = {
 
     const topicMap = new Map(topics.map((t) => [t.title.toLowerCase(), t]));
 
+    function matchTopic(topicTitle: string): TopicInfo | undefined {
+      const normalized = topicTitle.toLowerCase().trim();
+      if (!normalized) return undefined;
+
+      const exact = topicMap.get(normalized);
+      if (exact) return exact;
+
+      const stored = topics.find(
+        (t) =>
+          normalized.includes(t.title.toLowerCase()) ||
+          t.title.toLowerCase().includes(normalized),
+      );
+      if (stored) return stored;
+
+      const inputWords = new Set(normalized.split(/\s+/));
+      let best: TopicInfo | undefined;
+      let bestScore = 0;
+      for (const t of topics) {
+        const tw = t.title.toLowerCase().split(/\s+/);
+        const overlap = [...inputWords].filter((w) => tw.includes(w)).length;
+        if (overlap > bestScore) {
+          bestScore = overlap;
+          best = t;
+        }
+      }
+      return bestScore > 0 ? best : undefined;
+    }
+
     try {
       const quiz = await prisma.$transaction(async (tx) => {
         const created = await tx.quiz.create({
@@ -65,7 +93,7 @@ export const quizService = {
 
         for (let i = 0; i < validated.questions.length; i++) {
           const q = validated.questions[i];
-          const matchedTopic = topicMap.get((q.topicTitle ?? "").toLowerCase());
+          const matchedTopic = matchTopic(q.topicTitle ?? "");
           const correctIndex = q.options.findIndex((o) => o.isCorrect);
 
           await tx.quizQuestion.create({

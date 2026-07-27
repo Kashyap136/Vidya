@@ -1,6 +1,9 @@
+import { createRequire } from "module";
 import { ValidationError } from "./errors";
 import { logger } from "@/lib/logger";
 import type { ExtractionResult } from "@/types/ai";
+
+const _require = createRequire(import.meta.url);
 
 export const EXTRACTION_TIMEOUT_MS = 30_000;
 export const MAX_PAGE_COUNT = 200;
@@ -93,7 +96,8 @@ async function getPdfJs(): Promise<typeof import("pdfjs-dist/legacy/build/pdf.mj
   if (!pdfjsInstance) {
     ensureDOMMatrix();
     pdfjsInstance = await import("pdfjs-dist/legacy/build/pdf.mjs");
-    pdfjsInstance.GlobalWorkerOptions.workerSrc = "";
+    const workerPath = _require.resolve("pdfjs-dist/legacy/build/pdf.worker.mjs");
+    pdfjsInstance.GlobalWorkerOptions.workerSrc = workerPath;
   }
   return pdfjsInstance;
 }

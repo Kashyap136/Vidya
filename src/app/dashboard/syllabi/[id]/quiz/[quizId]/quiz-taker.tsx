@@ -487,18 +487,34 @@ export function QuizTaker({
 
               return (
                 <Card key={q.id} className="border-red-200 dark:border-red-900">
-                  <CardContent className="pt-4 space-y-2">
-                    <p className="text-sm font-medium">{q.questionText}</p>
-                    <p className="text-xs text-red-600 dark:text-red-400">
-                      Your answer: {answer && answer.selectedOptionIndex >= 0
-                        ? q.options[answer.selectedOptionIndex]?.text
-                        : "Skipped"}
-                    </p>
-                    <p className="text-xs text-green-600 dark:text-green-400">
-                      Correct answer: {q.options[correctIndex]?.text}
-                    </p>
+                  <CardContent className="pt-4 space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium flex-1">{q.questionText}</p>
+                      <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground shrink-0">
+                        {q.difficulty}
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-red-600 dark:text-red-400">
+                        <span className="font-medium">Your answer:</span>{" "}
+                        {answer && answer.selectedOptionIndex >= 0
+                          ? q.options[answer.selectedOptionIndex]?.text
+                          : "Skipped"}
+                      </p>
+                      <p className="text-xs text-green-600 dark:text-green-400">
+                        <span className="font-medium">Correct answer:</span>{" "}
+                        {q.options[correctIndex]?.text}
+                      </p>
+                    </div>
+                    {q.topicTitle && (
+                      <p className="text-[11px] text-muted-foreground">
+                        <span className="font-medium">Topic:</span> {q.topicTitle}
+                      </p>
+                    )}
                     {q.explanation && (
-                      <p className="text-xs text-muted-foreground mt-1">{q.explanation}</p>
+                      <p className="text-xs text-muted-foreground bg-muted/50 rounded-md p-2">
+                        {q.explanation}
+                      </p>
                     )}
                   </CardContent>
                 </Card>

@@ -13,16 +13,19 @@ export const quizPromptBuilderService = {
       .map((t, i) => `${i + 1}. "${t.title}" (${t.difficulty}, ${t.priority}) - ${t.summary || "No description"}`)
       .join("\n");
 
-    const systemInstruction = `You are an expert quiz generator for university-level academic content. Generate multiple-choice quiz questions.
+    const systemInstruction = `You are an expert quiz generator for university-level academic content. Generate multiple-choice quiz questions EXCLUSIVELY from the topics provided below.
 
-Rules:
+CRITICAL RULES:
 1. Each question must have exactly 4 options with exactly 1 correct answer.
 2. Cover different topics — do not generate all questions from the same topic.
 3. Avoid duplicate or overly similar questions.
 4. Distribute difficulty across the quiz — include some BEGINNER, some INTERMEDIATE, and some ADVANCED questions.
-5. Write clear, unambiguous question text.
+5. Write clear, unambiguous question text directly related to the syllabus topics.
 6. Distractors (wrong answers) must be plausible but clearly incorrect.
 7. Explanations must be informative and reference the relevant concept.
+8. Copy topicTitle EXACTLY verbatim from the provided Topics list — do not modify, abbreviate, or rephrase it.
+9. Every question MUST have a topicTitle that appears WORD-FOR-WORD in the Topics list below.
+10. Do NOT create questions about topics not in the list.
 
 Output: Return ONLY valid JSON matching the schema below. No markdown, no code fences, no explanations.
 
@@ -33,7 +36,7 @@ Schema:
   "questions": [
     {
       "questionText": "string (the question, at least 15 characters)",
-      "topicTitle": "string (the topic title this question covers — must match one from the provided list)",
+      "topicTitle": "string (EXACT verbatim copy of the topic title from the list below)",
       "options": [
         { "text": "string (option text)", "isCorrect": boolean },
         { "text": "string (option text)", "isCorrect": boolean },
@@ -52,7 +55,7 @@ Constraints:
 - Each question must have exactly 4 options
 - Exactly one option per question must have isCorrect: true
 - questionText must be unique across all questions
-- topicTitle must match a topic from the provided list
+- topicTitle must be an EXACT VERBATIM match of a topic title from the list below
 - difficulty must be one of BEGINNER, INTERMEDIATE, ADVANCED
 - estimatedSeconds must be between 15 and 300`;
 
