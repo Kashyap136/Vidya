@@ -8,6 +8,10 @@ const REQUIRED_VARS = [
   "NEXT_PUBLIC_APP_URL",
 ] as const;
 
+const OPTIONAL_VARS = [
+  "NVIDIA_API_KEY",
+] as const;
+
 const EMAIL_VARS = [
   "SMTP_HOST",
   "SMTP_PORT",
