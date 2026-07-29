@@ -49,6 +49,13 @@ export class QuizAttemptRepository extends BaseRepository<QuizAttemptRecord, Cre
     );
   }
 
+  async findByQuizIds(quizIds: string[], options?: QueryOptions): Promise<QuizAttemptRecord[]> {
+    return this.findMany(
+      { quizId: { in: quizIds } } as Record<string, unknown>,
+      { ...options, orderBy: { field: "createdAt", order: "desc" as const } },
+    );
+  }
+
   async getScoreStats(userId: string): Promise<{
     totalAttempts: number;
     averageScore: number;
