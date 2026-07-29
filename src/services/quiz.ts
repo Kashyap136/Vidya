@@ -247,34 +247,38 @@ export const quizService = {
     const quizzes = await this.getBySyllabus(syllabusId, userId);
     const performance: Record<string, { correct: number; total: number }> = {};
 
-    for (const quiz of quizzes) {
-      const attempts = await quizAttemptRepository.findByQuizId(quiz.id as string);
-      const completedAttempts = attempts.filter(
-        (a) => a.completedAt != null,
-      ) as Array<Record<string, unknown>>;
+    if (quizzes.length === 0) {
+      return performance;
+    }
 
-      for (const attempt of completedAttempts) {
-        const rawAnswers = attempt.answers;
-        if (!rawAnswers) continue;
-        const answers = Array.isArray(rawAnswers)
-          ? (rawAnswers as Array<{
-              questionId: string;
-              selectedOptionIndex: number;
-              isCorrect: boolean;
-              topicId?: string;
-            }>)
-          : [];
-        if (answers.length === 0) continue;
+    const quizIds = quizzes.map((q) => q.id as string);
+    // Fetch all attempts for all quizzes in one query to prevent N+1
+    const allAttempts = await quizAttemptRepository.findByQuizIds(quizIds);
+    const completedAttempts = allAttempts.filter(
+      (a) => a.completedAt != null,
+    ) as Array<Record<string, unknown>>;
 
-        for (const answer of answers) {
-          const topicId = answer.topicId || "unknown";
-          if (!performance[topicId]) {
-            performance[topicId] = { correct: 0, total: 0 };
-          }
-          performance[topicId].total++;
-          if (answer.isCorrect) {
-            performance[topicId].correct++;
-          }
+    for (const attempt of completedAttempts) {
+      const rawAnswers = attempt.answers;
+      if (!rawAnswers) continue;
+      const answers = Array.isArray(rawAnswers)
+        ? (rawAnswers as Array<{
+            questionId: string;
+            selectedOptionIndex: number;
+            isCorrect: boolean;
+            topicId?: string;
+          }>)
+        : [];
+      if (answers.length === 0) continue;
+
+      for (const answer of answers) {
+        const topicId = answer.topicId || "unknown";
+        if (!performance[topicId]) {
+          performance[topicId] = { correct: 0, total: 0 };
+        }
+        performance[topicId].total++;
+        if (answer.isCorrect) {
+          performance[topicId].correct++;
         }
       }
     }
