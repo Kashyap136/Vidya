@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Circle, Clock } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Loader2 } from "lucide-react";
 import { toggleTaskAction } from "@/actions";
 
 interface TaskCardProps {
@@ -51,21 +51,24 @@ export function TaskCard({ task, onToggle, readOnly = false }: TaskCardProps) {
         <button
           onClick={handleToggle}
           disabled={isPending}
-          className="shrink-0"
-          aria-label={task.isComplete ? "Mark as incomplete" : "Mark as complete"}
+          className="shrink-0 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-transform hover:scale-110 active:scale-95"
+          aria-label={task.isComplete ? `Mark ${topicTitle} as incomplete` : `Mark ${topicTitle} as complete`}
+          aria-pressed={task.isComplete}
         >
-          {task.isComplete ? (
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
+          {isPending ? (
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" aria-hidden="true" />
+          ) : task.isComplete ? (
+            <CheckCircle2 className="h-5 w-5 text-green-500" aria-hidden="true" />
           ) : (
-            <Circle className="h-5 w-5 text-muted-foreground" />
+            <Circle className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           )}
         </button>
       ) : (
         <div className="shrink-0">
           {task.isComplete ? (
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
+            <CheckCircle2 className="h-5 w-5 text-green-500" aria-hidden="true" />
           ) : (
-            <Circle className="h-5 w-5 text-muted-foreground" />
+            <Circle className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           )}
         </div>
       )}
@@ -93,8 +96,8 @@ export function TaskCard({ task, onToggle, readOnly = false }: TaskCardProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-        <Clock className="h-3 w-3" />
+      <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0" aria-label={`Estimated time: ${hours > 0 ? `${hours} hours` : `${task.minutes} minutes`}`}>
+        <Clock className="h-3 w-3" aria-hidden="true" />
         {hours > 0 ? `${hours}h` : `${task.minutes}m`}
       </div>
     </div>
