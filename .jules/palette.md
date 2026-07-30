@@ -1,0 +1,3 @@
+## 2025-03-02 - Task Toggle Button Feedback and Accessibility
+**Learning:** Adding inline loading states (`animate-spin`), `aria-pressed` attributes, and hiding decorative icons (`aria-hidden`) is an effective combination for improving button clarity during asynchronous operations and supporting screen readers.
+**Action:** When implementing buttons with asynchronous state transitions, particularly those that toggle a status (like a checkbox or completion toggle), ensure loading indicators are clear and both visual (e.g. `animate-spin`) and screen reader (e.g. dynamic `aria-label`, `aria-pressed`, and `aria-hidden`) enhancements are employed in tandem.
