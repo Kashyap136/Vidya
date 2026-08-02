@@ -1,7 +1,6 @@
 "use client";
 
-import { Search, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -50,23 +49,18 @@ export function TopicFilters({
   return (
     <div className="space-y-3">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
+        {/*
+          ⚡ Bolt Optimization: Replace raw Input with SearchBar
+          Why: The previous Input triggered onSearchChange (and thus re-renders of the entire TopicList)
+               on every keystroke.
+          Impact: SearchBar includes built-in debouncing (default 300ms) which prevents rapid,
+                  unnecessary re-renders when typing fast, improving UI responsiveness.
+        */}
+        <SearchBar
           placeholder="Search topics..."
           value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-9 pr-8"
-          aria-label="Search topics"
+          onChange={onSearchChange}
         />
-        {search && (
-          <button
-            onClick={() => onSearchChange("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label="Clear search"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
       </div>
       <div className="flex flex-wrap gap-2">
         <Select value={status} onValueChange={(v: string) => onStatusChange(v as FilterStatus)}>
