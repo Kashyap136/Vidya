@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Circle, Clock } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Loader2 } from "lucide-react";
 import { toggleTaskAction } from "@/actions";
 
 interface TaskCardProps {
@@ -51,10 +51,12 @@ export function TaskCard({ task, onToggle, readOnly = false }: TaskCardProps) {
         <button
           onClick={handleToggle}
           disabled={isPending}
-          className="shrink-0"
+          className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label={task.isComplete ? "Mark as incomplete" : "Mark as complete"}
         >
-          {task.isComplete ? (
+          {isPending ? (
+            <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
+          ) : task.isComplete ? (
             <CheckCircle2 className="h-5 w-5 text-green-500" />
           ) : (
             <Circle className="h-5 w-5 text-muted-foreground" />
