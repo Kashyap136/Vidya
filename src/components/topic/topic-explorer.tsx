@@ -36,43 +36,41 @@ export function TopicExplorer({ topics }: TopicExplorerProps) {
   const [sort, setSort] = useState<SortKey>("order");
 
   const stats = useMemo(() => {
-    const total = topics.length;
-    const completed = topics.filter((t) => t.completedAt != null).length;
-    const totalHours = topics.reduce(
-      (sum, t) => sum + Math.ceil((t.estimatedMinutes || 0) / 60),
-      0,
-    );
-    const completedHours = topics
-      .filter((t) => t.completedAt != null)
-      .reduce((sum, t) => sum + Math.ceil((t.estimatedMinutes || 0) / 60), 0);
-    return { total, completed, totalHours, completedHours };
+    let completed = 0;
+    let totalHours = 0;
+    let completedHours = 0;
+
+    for (let i = 0; i < topics.length; i++) {
+      const t = topics[i];
+      const hours = Math.ceil((t.estimatedMinutes || 0) / 60);
+      totalHours += hours;
+
+      if (t.completedAt != null) {
+        completed++;
+        completedHours += hours;
+      }
+    }
+
+    return { total: topics.length, completed, totalHours, completedHours };
   }, [topics]);
 
   const filtered = useMemo(() => {
-    let result = [...topics];
+    const q = search.trim().toLowerCase();
 
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (t) =>
-          t.title.toLowerCase().includes(q) ||
-          (t.summary?.toLowerCase().includes(q)),
-      );
-    }
+    // Bolt Optimization: Filter array in a single pass instead of chaining filter calls
+    const result = topics.filter((t) => {
+      if (q && !t.title.toLowerCase().includes(q) && !(t.summary?.toLowerCase().includes(q))) {
+        return false;
+      }
 
-    if (status === "completed") {
-      result = result.filter((t) => t.completedAt != null);
-    } else if (status === "incomplete") {
-      result = result.filter((t) => t.completedAt == null);
-    }
+      if (status === "completed" && t.completedAt == null) return false;
+      if (status === "incomplete" && t.completedAt != null) return false;
 
-    if (priority !== "all") {
-      result = result.filter((t) => t.priority === priority);
-    }
+      if (priority !== "all" && t.priority !== priority) return false;
+      if (difficulty !== "all" && t.difficulty !== difficulty) return false;
 
-    if (difficulty !== "all") {
-      result = result.filter((t) => t.difficulty === difficulty);
-    }
+      return true;
+    });
 
     result.sort((a, b) => {
       switch (sort) {
