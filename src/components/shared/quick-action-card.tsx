@@ -15,7 +15,7 @@ export function QuickActionCard({ title, description, icon, href, variant = "def
     <Link
       href={href}
       className={cn(
-        "group relative flex flex-col gap-3 rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md",
+        "group relative flex flex-col gap-3 rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         variant === "primary" && "border-primary/20 bg-primary/5 hover:bg-primary/10",
         className,
       )}
