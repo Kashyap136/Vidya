@@ -1,0 +1,6 @@
+⚡ Bolt: Batch fetch quiz attempts to solve N+1 query
+
+💡 What: Refactored `getTopicPerformance` in `src/services/quiz.ts` to fetch all attempts for all quizzes in a single database query using `findMany({ quizId: { in: quizIds } })` instead of a `for` loop executing `findByQuizId` individually per quiz.
+🎯 Why: When fetching topic performance for a syllabus with many quizzes, iterating over each quiz and issuing a separate database query caused an N+1 query bottleneck. Batching the fetch drastically reduces database roundtrips.
+📊 Impact: Reduces database queries in `getTopicPerformance` from O(N) (where N is the number of quizzes) to O(1) (a single batched query), dramatically speeding up performance tracking load times for large syllabi.
+🔬 Measurement: Verify by executing `pnpm test` (existing backend tests pass) and observing the reduction in query logs or network trace when hitting the topic performance endpoint for a heavily populated syllabus.
