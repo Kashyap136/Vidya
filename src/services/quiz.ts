@@ -244,37 +244,42 @@ export const quizService = {
     userId: string,
     syllabusId: string,
   ): Promise<Record<string, { correct: number; total: number }>> {
+    // Optimization: Batch fetch quiz attempts instead of N+1 query loop
     const quizzes = await this.getBySyllabus(syllabusId, userId);
+    if (quizzes.length === 0) return {};
+
+    const quizIds = quizzes.map((q) => q.id as string);
+    const allAttempts = await quizAttemptRepository.findMany({
+      quizId: { in: quizIds },
+    });
+
     const performance: Record<string, { correct: number; total: number }> = {};
 
-    for (const quiz of quizzes) {
-      const attempts = await quizAttemptRepository.findByQuizId(quiz.id as string);
-      const completedAttempts = attempts.filter(
-        (a) => a.completedAt != null,
-      ) as Array<Record<string, unknown>>;
+    const completedAttempts = allAttempts.filter(
+      (a) => a.completedAt != null,
+    ) as Array<Record<string, unknown>>;
 
-      for (const attempt of completedAttempts) {
-        const rawAnswers = attempt.answers;
-        if (!rawAnswers) continue;
-        const answers = Array.isArray(rawAnswers)
-          ? (rawAnswers as Array<{
-              questionId: string;
-              selectedOptionIndex: number;
-              isCorrect: boolean;
-              topicId?: string;
-            }>)
-          : [];
-        if (answers.length === 0) continue;
+    for (const attempt of completedAttempts) {
+      const rawAnswers = attempt.answers;
+      if (!rawAnswers) continue;
+      const answers = Array.isArray(rawAnswers)
+        ? (rawAnswers as Array<{
+            questionId: string;
+            selectedOptionIndex: number;
+            isCorrect: boolean;
+            topicId?: string;
+          }>)
+        : [];
+      if (answers.length === 0) continue;
 
-        for (const answer of answers) {
-          const topicId = answer.topicId || "unknown";
-          if (!performance[topicId]) {
-            performance[topicId] = { correct: 0, total: 0 };
-          }
-          performance[topicId].total++;
-          if (answer.isCorrect) {
-            performance[topicId].correct++;
-          }
+      for (const answer of answers) {
+        const topicId = answer.topicId || "unknown";
+        if (!performance[topicId]) {
+          performance[topicId] = { correct: 0, total: 0 };
+        }
+        performance[topicId].total++;
+        if (answer.isCorrect) {
+          performance[topicId].correct++;
         }
       }
     }
