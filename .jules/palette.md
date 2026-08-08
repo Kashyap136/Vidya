@@ -1,0 +1,3 @@
+## 2024-08-08 - Accessibility of custom `role="button"` elements
+**Learning:** Custom interactive elements with `role="button"` require manual handling of default behaviors (like page scrolling on Space) and explicit focus styling, as they don't inherit native button behavior. They also need dynamic `tabIndex` and `aria-disabled` for screen reader/keyboard users.
+**Action:** Whenever creating a div/span with `role="button"`, ensure `e.preventDefault()` is in the `onKeyDown` handler for Space/Enter, add `focus-visible` Tailwind classes, and explicitly manage `aria-disabled` and `tabIndex` states based on the disabled prop.
