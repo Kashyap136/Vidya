@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { GraduationCap, CheckCircle2 } from "lucide-react";
+import { GraduationCap, CheckCircle2, Loader2 } from "lucide-react";
 
 export function ResetPasswordForm({ token }: { token?: string }) {
   const router = useRouter();
@@ -93,7 +93,14 @@ export function ResetPasswordForm({ token }: { token?: string }) {
             </CardContent>
             <CardFooter className="flex flex-col gap-4 pb-6">
               <Button type="submit" className="w-full" disabled={pending}>
-                {pending ? "Resetting..." : "Reset Password"}
+                {pending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Resetting...
+                  </>
+                ) : (
+                  "Reset Password"
+                )}
               </Button>
             </CardFooter>
           </form>
