@@ -4,6 +4,7 @@ const mockSyllabusFindById = vi.fn();
 const mockTopicFindBySyllabusId = vi.fn();
 const mockQuizCreate = vi.fn();
 const mockQuizQuestionCreate = vi.fn();
+const mockQuizQuestionCreateMany = vi.fn();
 const mockQuizFindUnique = vi.fn();
 const mockQuizFindFirst = vi.fn();
 const mockGenerate = vi.fn();
@@ -24,11 +25,15 @@ vi.mock("@/config/prisma", () => ({
     },
     quizQuestion: {
       create: (...args: unknown[]) => mockQuizQuestionCreate(...args),
+      createMany: (...args: unknown[]) => mockQuizQuestionCreateMany(...args),
     },
     $transaction: <T>(fn: (tx: unknown) => Promise<T>) =>
       fn({
         quiz: { create: (...args: unknown[]) => mockQuizCreate(...args) },
-        quizQuestion: { create: (...args: unknown[]) => mockQuizQuestionCreate(...args) },
+        quizQuestion: {
+          create: (...args: unknown[]) => mockQuizQuestionCreate(...args),
+          createMany: (...args: unknown[]) => mockQuizQuestionCreateMany(...args)
+        },
       }),
   },
 }));
@@ -114,7 +119,7 @@ describe("quizService", () => {
 
       expect(result).toBeDefined();
       expect(mockQuizCreate).toHaveBeenCalled();
-      expect(mockQuizQuestionCreate).toHaveBeenCalled();
+      expect(mockQuizQuestionCreateMany).toHaveBeenCalled();
     });
 
     it("throws when syllabus not found", async () => {
