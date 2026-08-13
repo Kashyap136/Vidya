@@ -48,17 +48,17 @@ export function SyllabusCard({ syllabus, onRename, onArchive, onDelete, onRestor
       </CardContent>
       <CardFooter className="flex flex-wrap gap-2">
         <Link href={`/dashboard/syllabi/${id}`}>
-          <Button variant="outline" size="sm">Open</Button>
+          <Button variant="outline" size="sm" aria-label={`Open syllabus ${title}`}>Open</Button>
         </Link>
         {isArchived ? (
-          <Button variant="ghost" size="sm" onClick={() => onRestore(syllabus)}>Restore</Button>
+          <Button variant="ghost" size="sm" onClick={() => onRestore(syllabus)} aria-label={`Restore syllabus ${title}`}>Restore</Button>
         ) : (
           <>
-            <Button variant="ghost" size="sm" onClick={() => onRename(syllabus)}>Rename</Button>
-            <Button variant="ghost" size="sm" onClick={() => onArchive(syllabus)}>Archive</Button>
+            <Button variant="ghost" size="sm" onClick={() => onRename(syllabus)} aria-label={`Rename syllabus ${title}`}>Rename</Button>
+            <Button variant="ghost" size="sm" onClick={() => onArchive(syllabus)} aria-label={`Archive syllabus ${title}`}>Archive</Button>
           </>
         )}
-        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => onDelete(syllabus)}>
+        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => onDelete(syllabus)} aria-label={`Delete syllabus ${title}`}>
           Delete
         </Button>
       </CardFooter>
