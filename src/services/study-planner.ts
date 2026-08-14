@@ -205,6 +205,13 @@ export const studyPlanner = {
         },
       });
 
+      // ⚡ Bolt Performance Optimization:
+      // Moved `topicMap` initialization outside the loop to avoid O(N²) rebuilding on every iteration.
+      // Replaced sequential `tx.studyTask.create` calls with bulk `createMany` to resolve N+1 query bottleneck.
+      // Expected impact: Significant reduction in execution time and DB connections for large syllabi.
+      const topicMap = new Map(scoredTopics.map((t) => [t.id, t]));
+      const allTasksData: Prisma.StudyTaskCreateManyInput[] = [];
+
       for (let i = 0; i < studyDays.length; i++) {
         const sd = studyDays[i];
         const date = calendarDays[sd.dayIndex];
@@ -221,21 +228,24 @@ export const studyPlanner = {
           },
         });
 
-        const topicMap = new Map(scoredTopics.map((t) => [t.id, t]));
         for (let j = 0; j < sd.topicIds.length; j++) {
           const topicId = sd.topicIds[j];
           const topic = topicMap.get(topicId);
-          await tx.studyTask.create({
-            data: {
-              studyDayId: day.id,
-              topicId,
-              minutes: topic?.estimatedMinutes || 30,
-              order: j,
-              createdBy: audit?.userId ?? null,
-              updatedBy: audit?.userId ?? null,
-            },
+          allTasksData.push({
+            studyDayId: day.id,
+            topicId,
+            minutes: topic?.estimatedMinutes || 30,
+            order: j,
+            createdBy: audit?.userId ?? null,
+            updatedBy: audit?.userId ?? null,
           });
         }
+      }
+
+      if (allTasksData.length > 0) {
+        await tx.studyTask.createMany({
+          data: allTasksData,
+        });
       }
 
       return created;
@@ -321,7 +331,14 @@ export const studyPlanner = {
         },
       });
 
+      // ⚡ Bolt Performance Optimization:
+      // Moved `topicMap` initialization outside the loop to avoid O(N²) rebuilding on every iteration.
+      // Replaced sequential `tx.studyTask.create` calls with bulk `createMany` to resolve N+1 query bottleneck.
+      // Expected impact: Significant reduction in execution time and DB connections for large syllabi.
+      const topicMap = new Map(scoredTopics.map((t) => [t.id, t]));
+      const allTasksData: Prisma.StudyTaskCreateManyInput[] = [];
       const newDayIds: string[] = [];
+
       for (let i = 0; i < studyDays.length; i++) {
         const sd = studyDays[i];
         const date = calendarDays[sd.dayIndex];
@@ -339,21 +356,24 @@ export const studyPlanner = {
         });
         newDayIds.push(day.id);
 
-        const topicMap = new Map(scoredTopics.map((t) => [t.id, t]));
         for (let j = 0; j < sd.topicIds.length; j++) {
           const topicId = sd.topicIds[j];
           const topic = topicMap.get(topicId);
-          await tx.studyTask.create({
-            data: {
-              studyDayId: day.id,
-              topicId,
-              minutes: topic?.estimatedMinutes || 30,
-              order: j,
-              createdBy: userId,
-              updatedBy: userId,
-            },
+          allTasksData.push({
+            studyDayId: day.id,
+            topicId,
+            minutes: topic?.estimatedMinutes || 30,
+            order: j,
+            createdBy: userId,
+            updatedBy: userId,
           });
         }
+      }
+
+      if (allTasksData.length > 0) {
+        await tx.studyTask.createMany({
+          data: allTasksData,
+        });
       }
 
       const oldDayIds = existing.days
