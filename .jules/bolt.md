@@ -1,0 +1,3 @@
+## 2026-08-14 - Prisma createMany vs Sequential create
+ **Learning:** In an N+1 scenario (like inserting multiple study task assignments during study plan generation), replacing sequential `await tx.model.create({})` inside a for-loop with a batch `await tx.model.createMany({ data: [...] })` dramatically cuts down the number of database queries within the Prisma transaction.
+ **Action:** Always batch database inserts into an array and use `createMany` when generating records in loops. Also remember to document optimizations and check for auto-generated `pnpm-lock.yaml` when using `pnpm install`.
