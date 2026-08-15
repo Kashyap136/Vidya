@@ -28,7 +28,10 @@ vi.mock("@/config/prisma", () => ({
     $transaction: <T>(fn: (tx: unknown) => Promise<T>) =>
       fn({
         quiz: { create: (...args: unknown[]) => mockQuizCreate(...args) },
-        quizQuestion: { create: (...args: unknown[]) => mockQuizQuestionCreate(...args) },
+        quizQuestion: {
+          create: (...args: unknown[]) => mockQuizQuestionCreate(...args),
+          createMany: (...args: unknown[]) => mockQuizQuestionCreate(...args),
+        },
       }),
   },
 }));
