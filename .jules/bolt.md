@@ -1,0 +1,3 @@
+## 2026-08-17 - Prisma Transaction Context and createMany
+**Learning:** The custom transaction wrapper in `@/repositories/transaction` does not automatically pass the `tx` client to repository methods (e.g., `topicRepository.create`). To perform true transactional bulk operations, you must interact directly with the Prisma client provided in the transaction callback (e.g., `tx.quizQuestion.createMany()`).
+**Action:** Always prefer direct `tx.model.createMany()` operations over repository methods for bulk inserts inside transactions to ensure they are actually executed within the transaction context and benefit from batching performance.
