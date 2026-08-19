@@ -1,0 +1,3 @@
+## 2023-10-27 - Search Bar Internal Actions
+**Learning:** Adding internal clear buttons (`x`) inside custom inputs or search bars can inadvertently submit surrounding forms if they are missing `type="button"`. Additionally, these internal actions often lack keyboard accessibility because users tab past the input, missing the clear button entirely if it lacks explicit focus states. Finally, adding an 'Escape' key shortcut directly on the input provides a smoother keyboard-first way to clear the text without needing to focus the 'x' button.
+**Action:** Always add `type="button"` and explicit `focus-visible` ring classes to internal input buttons, and bind `e.key === "Escape"` with `e.stopPropagation()` to the parent input `onKeyDown` to handle clearing intuitively.
