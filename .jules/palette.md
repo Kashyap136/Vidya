@@ -1,0 +1,3 @@
+## 2024-08-20 - Search Bar UX & Accessibility
+**Learning:** Custom interactive elements within inputs (like a search bar clear button) are often missed by keyboard navigation and screen readers if not properly styled, and they can cause unintended form submissions if `type="button"` is omitted. Furthermore, users expect to clear searches easily using the Escape key.
+**Action:** When implementing custom inputs with clear actions, always ensure the clear button has `type="button"` to prevent form submission, add an explicit 'Escape' keyboard shortcut (using `e.stopPropagation()` to prevent unwanted side effects like closing modals), and include `focus-visible` classes for keyboard navigability.
