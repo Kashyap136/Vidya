@@ -1,0 +1,3 @@
+## 2024-10-24 - Accessibility improvements for input components
+**Learning:** Never use `tabIndex={-1}` on buttons or internal interactive elements of custom inputs (like a password visibility toggle), as it completely breaks keyboard navigation and makes them inaccessible to keyboard-only and screen reader users. Also, custom interactive elements with clear actions (like a search bar) should handle the 'Escape' key for a complete user experience.
+**Action:** Ensure custom internal input actions handle standard key bindings ('Escape' for clearing), remove artificial `tabIndex` restrictions on buttons that belong in the natural tab order, and add proper `focus-visible` styling to all buttons to make them fully accessible.
