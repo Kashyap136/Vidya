@@ -1,0 +1,1 @@
+## 2026-08-22 - Initializing Palette Journal\n**Learning:** It's important to track critical UX/a11y learnings to maintain a consistent user experience.\n**Action:** Start documenting critical insights here.
