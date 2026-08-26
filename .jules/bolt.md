@@ -1,0 +1,3 @@
+## 2024-05-24 - Bulk insertion with Prisma createMany
+**Learning:** When using Prisma, executing sequential `create` operations within a loop (e.g., in a transaction) causes an N+1 query problem that significantly degrades performance. Bulk inserting with `createMany` is the textbook optimization, but care must be taken with JSON fields requiring explicit `as unknown as Prisma.InputJsonValue` casts to satisfy strict typing.
+**Action:** Always scan for iterative `.create` operations within map/for loops and refactor them to `.createMany` where applicable, ensuring proper type casts for JSON fields.
