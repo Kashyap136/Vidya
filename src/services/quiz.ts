@@ -91,29 +91,29 @@ export const quizService = {
           },
         });
 
-        for (let i = 0; i < validated.questions.length; i++) {
-          const q = validated.questions[i];
-          const matchedTopic = matchTopic(q.topicTitle ?? "");
-          const correctIndex = q.options.findIndex((o) => o.isCorrect);
+        // ⚡ Bolt: Bulk insert quiz questions to fix N+1 query bottleneck
+        await tx.quizQuestion.createMany({
+          data: validated.questions.map((q, i) => {
+            const matchedTopic = matchTopic(q.topicTitle ?? "");
+            const correctIndex = q.options.findIndex((o) => o.isCorrect);
 
-          await tx.quizQuestion.create({
-            data: {
+            return {
               quizId: created.id,
               topicId: matchedTopic?.id ?? null,
               questionText: q.questionText,
               options: q.options.map((o, idx) => ({
                 text: o.text,
                 isCorrect: idx === correctIndex,
-              })),
+              })) as unknown as Prisma.InputJsonValue,
               explanation: q.explanation,
               difficulty: q.difficulty as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",
               estimatedSeconds: q.estimatedSeconds,
               order: i,
               createdBy: audit?.userId ?? null,
               updatedBy: audit?.userId ?? null,
-            },
-          });
-        }
+            };
+          }),
+        });
 
         return created;
       });
