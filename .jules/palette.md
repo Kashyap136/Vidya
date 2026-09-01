@@ -1,0 +1,3 @@
+## 2024-05-18 - Input Field Clear Actions & Password Toggles Accessibility
+**Learning:** Adding an internal 'clear' button inside a search input can trap users or cause accidental form submissions if not implemented correctly. Password toggles with `tabIndex={-1}` completely break keyboard accessibility for those users.
+**Action:** Always add an explicit `onKeyDown` with `e.stopPropagation()` for 'Escape' to clear inputs. Ensure internal clear buttons have `type="button"` and `focus-visible` styling. Never use `tabIndex={-1}` on internal interactive elements like password toggles; let natural document flow apply.
