@@ -436,11 +436,12 @@ export const studyPlanner = {
       },
     });
 
-    const allTasks = await prisma.studyTask.findMany({
-      where: { studyDayId: task.studyDayId },
+    // Push count to the database instead of fetching all tasks into memory
+    const incompleteCount = await prisma.studyTask.count({
+      where: { studyDayId: task.studyDayId, isComplete: false },
     });
 
-    const allComplete = allTasks.length > 0 && allTasks.every((t) => t.isComplete);
+    const allComplete = incompleteCount === 0;
 
     if (allComplete) {
       await prisma.studyDay.update({
@@ -578,16 +579,29 @@ export const studyPlanner = {
       };
     }
 
-    const tasks = await prisma.studyTask.findMany({
-      where: {
-        studyDayId: { in: plan.days.map((d) => d.id) },
-      },
+    // Push aggregation to the database instead of fetching all tasks into memory
+    const statsByCompletion = await prisma.studyTask.groupBy({
+      by: ['isComplete'],
+      where: { studyDayId: { in: plan.days.map((d) => d.id) } },
+      _sum: { minutes: true },
+      _count: { _all: true },
     });
 
-    const totalMinutes = tasks.reduce((s, t) => s + t.minutes, 0);
-    const completedMinutes = tasks.filter((t) => t.isComplete).reduce((s, t) => s + t.minutes, 0);
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.isComplete).length;
+    let totalMinutes = 0;
+    let completedMinutes = 0;
+    let totalTasks = 0;
+    let completedTasks = 0;
+
+    for (const stat of statsByCompletion) {
+      const mins = stat._sum.minutes || 0;
+      const count = stat._count._all || 0;
+      totalMinutes += mins;
+      totalTasks += count;
+      if (stat.isComplete) {
+        completedMinutes += mins;
+        completedTasks += count;
+      }
+    }
     const totalDays = plan.days.length;
     const completedDays = plan.days.filter((d) => d.isComplete).length;
 
