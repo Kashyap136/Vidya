@@ -1,0 +1,7 @@
+## 2024-05-18 - Search Bar Keyboard Clearing & Focus States
+**Learning:** Adding an Escape key listener to clear interactive inputs is a standard expected interaction that many custom input components forget. It's crucial to call `e.stopPropagation()` when handling Escape to clear an input, to prevent the keydown event from bubbling up and unintentionally triggering outer UI behaviors (like closing a containing modal or dialog).
+**Action:** Always include an explicit Escape shortcut for inputs that have a clear button, and remember to stop propagation. Ensure any internal action buttons (like clear or toggle visibility) explicitly have `type="button"` and `focus-visible` styling so they don't submit forms accidentally and remain discoverable via keyboard navigation.
+
+## 2024-05-18 - Password Input TabIndex Bug
+**Learning:** Using `tabIndex={-1}` on interactive internal elements (like a show/hide password toggle) completely breaks keyboard navigation for those elements, making them inaccessible to keyboard-only and screen reader users. The browser's default focus order should be respected unless there's a highly specific reason to manage focus manually (e.g., in a complex composite widget like a roving tabindex grid).
+**Action:** Never apply `tabIndex={-1}` to standard interactive elements inside form fields unless intentionally removing them from the interaction flow entirely. Let the browser handle standard tab ordering.
