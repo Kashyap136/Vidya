@@ -1,0 +1,3 @@
+## 2024-09-03 - Clearable Inputs Accessibility
+**Learning:** Adding a custom clear button inside an input requires strict accessibility considerations: it must have `type="button"` to prevent form submission, `focus-visible` states to enable keyboard navigation alongside the input itself, and handling `Escape` key events (`e.stopPropagation()` and clearing value) inside the input's `onKeyDown` allows users a standard keyboard shortcut to clear search queries without tabbing.
+**Action:** When implementing interactive clear actions inside inputs, always add explicit `focus-visible` classes, `type="button"`, and implement the `Escape` key pattern.
