@@ -578,16 +578,33 @@ export const studyPlanner = {
       };
     }
 
-    const tasks = await prisma.studyTask.findMany({
+    // Performance optimization: Use database aggregation instead of fetching all tasks into memory
+    const taskGroups = await prisma.studyTask.groupBy({
+      by: ["isComplete"],
       where: {
         studyDayId: { in: plan.days.map((d) => d.id) },
       },
+      _sum: { minutes: true },
+      _count: { _all: true },
     });
 
-    const totalMinutes = tasks.reduce((s, t) => s + t.minutes, 0);
-    const completedMinutes = tasks.filter((t) => t.isComplete).reduce((s, t) => s + t.minutes, 0);
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.isComplete).length;
+    let totalMinutes = 0;
+    let completedMinutes = 0;
+    let totalTasks = 0;
+    let completedTasks = 0;
+
+    for (const group of taskGroups) {
+      const minutes = group._sum.minutes || 0;
+      const count = group._count._all || 0;
+
+      totalMinutes += minutes;
+      totalTasks += count;
+
+      if (group.isComplete) {
+        completedMinutes += minutes;
+        completedTasks += count;
+      }
+    }
     const totalDays = plan.days.length;
     const completedDays = plan.days.filter((d) => d.isComplete).length;
 
