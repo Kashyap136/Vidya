@@ -1,7 +1,6 @@
 "use client";
 
-import { Search, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -49,25 +48,12 @@ export function TopicFilters({
 
   return (
     <div className="space-y-3">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search topics..."
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-9 pr-8"
-          aria-label="Search topics"
-        />
-        {search && (
-          <button
-            onClick={() => onSearchChange("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            aria-label="Clear search"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </div>
+      {/* ⚡ Bolt Optimization: Use debounced SearchBar to prevent expensive TopicList re-renders and re-filtering on every keystroke */}
+      <SearchBar
+        placeholder="Search topics..."
+        value={search}
+        onChange={onSearchChange}
+      />
       <div className="flex flex-wrap gap-2">
         <Select value={status} onValueChange={(v: string) => onStatusChange(v as FilterStatus)}>
           <SelectTrigger className="w-[130px]">

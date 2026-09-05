@@ -43,6 +43,8 @@ vi.mock("@/lib/logger", () => ({
 import { quizAttemptService } from "@/services/quiz-attempt";
 import { prisma } from "@/config/prisma";
 
+type QuizQuestionFindManyResult = Awaited<ReturnType<typeof prisma.quizQuestion.findMany>>;
+
 describe("quizAttemptService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -50,7 +52,9 @@ describe("quizAttemptService", () => {
 
   describe("record", () => {
     it("scores correct answers accurately", async () => {
-      vi.mocked(prisma.quizQuestion.findMany).mockResolvedValue(mockQuestions as any);
+      vi.mocked(prisma.quizQuestion.findMany).mockResolvedValue(
+        mockQuestions as unknown as QuizQuestionFindManyResult,
+      );
       mockCreate.mockResolvedValue({ id: "attempt-1" });
 
       const result = await quizAttemptService.record({
@@ -74,7 +78,9 @@ describe("quizAttemptService", () => {
     });
 
     it("scores partial correct answers", async () => {
-      vi.mocked(prisma.quizQuestion.findMany).mockResolvedValue(mockQuestions as any);
+      vi.mocked(prisma.quizQuestion.findMany).mockResolvedValue(
+        mockQuestions as unknown as QuizQuestionFindManyResult,
+      );
       mockCreate.mockResolvedValue({ id: "attempt-2" });
 
       await quizAttemptService.record({
@@ -97,7 +103,9 @@ describe("quizAttemptService", () => {
     });
 
     it("scores zero correct answers", async () => {
-      vi.mocked(prisma.quizQuestion.findMany).mockResolvedValue(mockQuestions as any);
+      vi.mocked(prisma.quizQuestion.findMany).mockResolvedValue(
+        mockQuestions as unknown as QuizQuestionFindManyResult,
+      );
       mockCreate.mockResolvedValue({ id: "attempt-3" });
 
       await quizAttemptService.record({
@@ -159,7 +167,7 @@ describe("quizAttemptService", () => {
 
     it("throws ValidationError when question has null options", async () => {
       vi.mocked(prisma.quizQuestion.findMany).mockResolvedValue([
-        { id: "q-bad", options: null } as any,
+        { id: "q-bad", options: null } as unknown as QuizQuestionFindManyResult[number],
       ]);
 
       await expect(
@@ -174,7 +182,10 @@ describe("quizAttemptService", () => {
 
     it("throws ValidationError when question has no correct answer", async () => {
       vi.mocked(prisma.quizQuestion.findMany).mockResolvedValue([
-        { id: "q-no-correct", options: [{ text: "A", isCorrect: false }] } as any,
+        {
+          id: "q-no-correct",
+          options: [{ text: "A", isCorrect: false }],
+        } as unknown as QuizQuestionFindManyResult[number],
       ]);
 
       await expect(
@@ -188,7 +199,9 @@ describe("quizAttemptService", () => {
     });
 
     it("records timeTaken when provided", async () => {
-      vi.mocked(prisma.quizQuestion.findMany).mockResolvedValue(mockQuestions as any);
+      vi.mocked(prisma.quizQuestion.findMany).mockResolvedValue(
+        mockQuestions as unknown as QuizQuestionFindManyResult,
+      );
       mockCreate.mockResolvedValue({ id: "attempt-4" });
 
       await quizAttemptService.record({
@@ -211,7 +224,9 @@ describe("quizAttemptService", () => {
     });
 
     it("stores answers array in the attempt record", async () => {
-      vi.mocked(prisma.quizQuestion.findMany).mockResolvedValue(mockQuestions as any);
+      vi.mocked(prisma.quizQuestion.findMany).mockResolvedValue(
+        mockQuestions as unknown as QuizQuestionFindManyResult,
+      );
       mockCreate.mockResolvedValue({ id: "attempt-5" });
 
       await quizAttemptService.record({
