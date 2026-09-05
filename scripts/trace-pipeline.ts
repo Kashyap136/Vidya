@@ -14,6 +14,7 @@ import { aiResponseValidator } from "@/services/ai-response-validator";
 import { processingStatusService } from "@/services/processing-status";
 import { studyPlanner } from "@/services/study-planner";
 import { quizService } from "@/services/quiz";
+import PDFDocument from "pdfkit";
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -74,7 +75,6 @@ async function main() {
 
   // ── 2. Create a real PDF ──────────────────────────────────────────
   step("Create a real test PDF");
-  const PDFDocument = require("pdfkit");
   const doc = new PDFDocument({ size: "A4" });
   const chunks: Buffer[] = [];
   doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -255,8 +255,8 @@ async function main() {
           data: {
             title: t.title,
             summary: t.description,
-            priority: t.priority as any,
-            difficulty: t.difficulty as any,
+            priority: t.priority,
+            difficulty: t.difficulty,
             order: i,
             estimatedMinutes: t.estimatedHours * 60,
             syllabusId: syllabus.id,
@@ -293,7 +293,7 @@ async function main() {
       targetDate: targetDate.toISOString().slice(0, 10),
       audit: { userId: user.id },
     });
-    ok("Study plan generated", { planId: (plan as any).id });
+    ok("Study plan generated", { planId: (plan as { id?: string }).id });
   } catch (e) {
     fail("Study plan generation failed", e);
   }
@@ -319,7 +319,8 @@ async function main() {
   await processingStatusService.update(syllabus.id, "GENERATING_QUIZ", { audit: { userId: user.id } });
   try {
     const quiz = await quizService.generate(syllabus.id, user.id, { userId: user.id });
-    ok("Quiz generated", { quizId: (quiz as any).id, questionCount: (quiz as any).questionCount });
+    const quizSummary = quiz as { id?: string; questionCount?: number };
+    ok("Quiz generated", { quizId: quizSummary.id, questionCount: quizSummary.questionCount });
   } catch (e) {
     fail("Quiz generation failed", e);
   }
