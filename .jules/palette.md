@@ -1,0 +1,3 @@
+## 2024-05-18 - Improve accessibility of custom inputs with clear/toggle buttons
+**Learning:** Adding custom clear buttons or visibility toggles inside inputs introduces accessibility challenges. Missing `type="button"` can trigger unintended form submissions, lack of `focus-visible` classes hides keyboard navigation states, and setting `tabIndex={-1}` makes the element completely inaccessible to keyboard users and screen readers.
+**Action:** When implementing custom interactive actions in input fields, always ensure `type="button"` is set, provide explicit `focus-visible` UI classes, and allow standard tab order by avoiding `tabIndex={-1}`. Include `Escape` keyboard shortcuts on the input to handle standard clear operations.
