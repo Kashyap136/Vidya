@@ -56,7 +56,11 @@ export class QuizAttemptRepository extends BaseRepository<QuizAttemptRecord, Cre
     highestScore: number;
     lowestScore: number;
   }> {
-    const attempts = await this.findMany({ userId } as Record<string, unknown>) as Array<Record<string, unknown>>;
+    // ⚡ Bolt: Fetch only necessary fields directly instead of using findMany which loads heavy JSON payloads
+    const attempts = (await (this.delegate as import("@prisma/client").Prisma.QuizAttemptDelegate).findMany({
+      where: { userId },
+      select: { score: true, totalQuestions: true },
+    })) as Array<{ score: number; totalQuestions: number }>;
 
     if (attempts.length === 0) {
       return {
@@ -68,8 +72,8 @@ export class QuizAttemptRepository extends BaseRepository<QuizAttemptRecord, Cre
       };
     }
 
-    const scores = attempts.map((a) => a.score as number);
-    const totals = attempts.map((a) => a.totalQuestions as number);
+    const scores = attempts.map((a) => a.score);
+    const totals = attempts.map((a) => a.totalQuestions);
     const percentages = scores.map((s, i) => (totals[i] > 0 ? (s / totals[i]) * 100 : 0));
 
     return {
