@@ -1,0 +1,3 @@
+## 2026-09-06 - Prisma aggregations for performance
+**Learning:** Avoid using `findMany` followed by an array `.reduce()` to compute sums and counts for relations, especially when large models with JSON structures (like `answers` in `QuizAttempt` or large relations in `StudyDay` and `StudyTask`) are involved. This creates an N+1 loading bottleneck on application memory. Use database-level aggregations (`groupBy` or `aggregate`) and projections (`select`) instead.
+**Action:** Default to `model.aggregate()` or `model.groupBy()` when calculating sums or counts directly inside repositories or services. When raw fields must be fetched, use `select: { ... }` explicitly to exclude large, unneeded columns.
