@@ -1,0 +1,3 @@
+## 2023-10-24 - Prisma Bulk Insert Optimization for Quizzes
+**Learning:** Replacing sequential `.create` queries in a loop with `.createMany` prevents N+1 query bottlenecks during bulk data generation (like quiz questions). When using `createMany` with JSON fields, mapping the array property using `as unknown as Prisma.InputJsonValue` is required to satisfy strict TypeScript types.
+**Action:** When inserting multiple independent child records (that don't require subsequent lookups for intermediate database-generated IDs) for a newly created parent record, always use `createMany` instead of looping `.create` and remember to mock `createMany` in associated Vitest tests.
