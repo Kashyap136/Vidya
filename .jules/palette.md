@@ -1,0 +1,3 @@
+## 2024-05-24 - Interactive Custom Inputs Accessibility
+**Learning:** Adding `tabIndex={-1}` on buttons or internal interactive elements inside custom inputs (like password visibility toggles or search clears) completely breaks keyboard navigation for those elements, making them inaccessible to keyboard-only and screen reader users. Also, custom clear buttons require `type="button"` to avoid unintentional form submissions, and `Escape` key handlers help align with native input clearing behaviors.
+**Action:** Always avoid `tabIndex={-1}` on interactive inner elements unless explicitly managing focus. Use `type="button"` for clear actions. Implement `Escape` shortcuts and explicit `focus-visible` UI states to handle accessibility.
