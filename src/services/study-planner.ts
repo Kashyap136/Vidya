@@ -529,11 +529,15 @@ export const studyPlanner = {
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
+
+    // Pre-compute completed dates for O(1) lookup
+    const completedDates = new Set(
+      allDays.filter((d) => d.isComplete).map((d) => d.date.toISOString().slice(0, 10))
+    );
+
     for (let i = 0; i < 365; i++) {
-      const sd = allDays.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      const cursorDateStr = cursor.toISOString().slice(0, 10);
+      if (completedDates.has(cursorDateStr)) {
         streak++;
         cursor.setDate(cursor.getDate() - 1);
       } else {
@@ -578,27 +582,41 @@ export const studyPlanner = {
       };
     }
 
-    const tasks = await prisma.studyTask.findMany({
-      where: {
-        studyDayId: { in: plan.days.map((d) => d.id) },
-      },
-    });
+    const dayIds = plan.days.map((d) => d.id);
 
-    const totalMinutes = tasks.reduce((s, t) => s + t.minutes, 0);
-    const completedMinutes = tasks.filter((t) => t.isComplete).reduce((s, t) => s + t.minutes, 0);
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.isComplete).length;
+    // Push aggregation to database instead of loading all tasks into memory
+    const [allTasksAgg, completedTasksAgg] = await Promise.all([
+      prisma.studyTask.aggregate({
+        where: { studyDayId: { in: dayIds } },
+        _sum: { minutes: true },
+        _count: { id: true }
+      }),
+      prisma.studyTask.aggregate({
+        where: { studyDayId: { in: dayIds }, isComplete: true },
+        _sum: { minutes: true },
+        _count: { id: true }
+      })
+    ]);
+
+    const totalMinutes = allTasksAgg._sum.minutes || 0;
+    const completedMinutes = completedTasksAgg._sum.minutes || 0;
+    const totalTasks = allTasksAgg._count.id;
+    const completedTasks = completedTasksAgg._count.id;
     const totalDays = plan.days.length;
     const completedDays = plan.days.filter((d) => d.isComplete).length;
 
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
+
+    // Pre-compute completed dates for O(1) lookup
+    const completedDates = new Set(
+      plan.days.filter((d) => d.isComplete).map((d) => d.date.toISOString().slice(0, 10))
+    );
+
     for (let i = 0; i < 365; i++) {
-      const sd = plan.days.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      const cursorDateStr = cursor.toISOString().slice(0, 10);
+      if (completedDates.has(cursorDateStr)) {
         streak++;
       } else {
         break;
