@@ -1,0 +1,3 @@
+## 2024-09-10 - Internal interactive elements in custom inputs
+**Learning:** When implementing internal clear actions (like a search bar) or visibility toggles (like password inputs), they need explicit keyboard handling. `Escape` should clear inputs (using `e.stopPropagation()`), clear buttons need `type="button"` to prevent form submission, and they must have explicit `focus-visible` UI states. `tabIndex={-1}` should never be used on these elements as it completely breaks keyboard accessibility.
+**Action:** Always verify keyboard navigation (Tab/Shift+Tab) and `Escape` key behaviors for custom inputs with internal buttons.
