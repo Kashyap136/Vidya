@@ -1,0 +1,3 @@
+## 2026-09-10 - Optimize Study Planner Streak and Task Stats
+**Learning:** Found two O(N) optimizations for Study Planner: replaced an O(N^2) streak calculation loop with an O(1) Set lookup, and pushed an expensive Node.js memory task aggregation (where all tasks were loaded to memory and reduced) directly to Postgres via Prisma `aggregate` and `groupBy` counts and sums.
+**Action:** Use native DB `aggregate` queries rather than application-side loops and `.reduce()` whenever counting metrics on relations, and leverage Sets for cross-referencing collections to convert O(N^2) complexity to O(N).
