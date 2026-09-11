@@ -1,0 +1,3 @@
+## 2024-05-24 - Improve SearchBar accessibility and keyboard interactions
+**Learning:** Custom interactive elements within inputs (like a clear button) often lack explicit keyboard support and can trigger unintended form submissions if they are not explicitly typed as buttons. Also, when users navigate a search input, an intuitive "Escape to clear" interaction improves usability.
+**Action:** Always add an explicit 'Escape' keyboard shortcut using `e.stopPropagation()` to clear custom search inputs. Ensure internal buttons have `type='button'` and include explicit `focus-visible` UI states for keyboard accessibility.
