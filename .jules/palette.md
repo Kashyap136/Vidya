@@ -1,0 +1,3 @@
+## 2024-03-24 - Interactive Elements inside Custom Inputs
+**Learning:** Adding `tabIndex={-1}` to interactive elements within composite inputs (like the show/hide password toggle button inside a text input wrapper) completely breaks keyboard accessibility, as it removes the element from the default focus order, making it impossible for keyboard-only or screen reader users to access the toggle.
+**Action:** Never use `tabIndex={-1}` on buttons or internal interactive elements of custom inputs unless implementing a custom arrow-key based roving tabindex pattern, which is usually overkill. Allow the browser's default tab sequence to reach these elements.
