@@ -526,14 +526,19 @@ export const studyPlanner = {
     );
     const overallProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
+    // OPTIMIZATION: Pre-compute a Set of completed date strings to avoid O(N) .find() lookup inside the 365-day loop.
+    // This reduces the complexity of calculating the streak from O(365 * N) to O(N + 365).
+    const completedDateStrings = new Set(
+      allDays
+        .filter((d) => d.isComplete)
+        .map((d) => d.date.toISOString().slice(0, 10))
+    );
+
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
     for (let i = 0; i < 365; i++) {
-      const sd = allDays.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      if (completedDateStrings.has(cursor.toISOString().slice(0, 10))) {
         streak++;
         cursor.setDate(cursor.getDate() - 1);
       } else {
@@ -591,14 +596,19 @@ export const studyPlanner = {
     const totalDays = plan.days.length;
     const completedDays = plan.days.filter((d) => d.isComplete).length;
 
+    // OPTIMIZATION: Pre-compute a Set of completed date strings to avoid O(N) .find() lookup inside the 365-day loop.
+    // This reduces the complexity of calculating the streak from O(365 * N) to O(N + 365).
+    const completedDateStrings = new Set(
+      plan.days
+        .filter((d) => d.isComplete)
+        .map((d) => d.date.toISOString().slice(0, 10))
+    );
+
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
     for (let i = 0; i < 365; i++) {
-      const sd = plan.days.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      if (completedDateStrings.has(cursor.toISOString().slice(0, 10))) {
         streak++;
       } else {
         break;
