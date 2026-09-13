@@ -1,0 +1,3 @@
+## 2024-09-13 - Search Bar Accessibility & Usability
+**Learning:** Interactive components with custom clear functionalities should always map the 'Escape' key to their clear action. Additionally, dynamically rendered buttons inside forms (like clear buttons) must explicitly declare `type="button"` to avoid implicitly acting as form submit triggers.
+**Action:** When creating or modifying search bars or custom input wrappers with internal action buttons, always implement `e.stopPropagation()` for Escape key handlers to avoid closing parent modals, and ensure inner buttons have explicit types and focus-visible outlines.
