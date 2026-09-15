@@ -1,0 +1,3 @@
+## 2024-03-20 - Never use tabIndex={-1} for internal inputs
+**Learning:** Using `tabIndex={-1}` on buttons or internal interactive elements of custom inputs (like a password visibility toggle) completely breaks keyboard navigation and makes them inaccessible to keyboard-only and screen reader users.
+**Action:** Allow the browser's default focus order to apply. Do not artificially hide controls from keyboard access unless it is purely decorative or specifically required by an ARIA pattern where another element manages focus.
