@@ -1,0 +1,3 @@
+## 2025-02-20 - Database Aggregations and O(1) Set Lookups for Date Processing
+**Learning:** We replaced multiple O(N^2) loops and in-memory .reduce() accumulations with O(1) Set Date lookups and Prisma native aggregations (which translates conditional counting with groupBy style behavior via _count and _sum on specific filters) inside `study-planner.ts`.
+**Action:** When working on stats generation scripts, always consider pushing aggregations to the DB using `prisma.model.aggregate` before falling back to native array aggregations. Also when finding dates inside loops, construct Sets of ISO strings instead of .find() iterations over entire array representations.
