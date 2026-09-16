@@ -529,11 +529,18 @@ export const studyPlanner = {
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
+
+    // OPTIMIZATION: Pre-compute a Set of formatted date strings for completed days to
+    // enable O(1) lookups instead of O(N^2) array .find() operations inside the loop.
+    const completedDateStrings = new Set(
+      allDays
+        .filter((d) => d.isComplete)
+        .map((d) => d.date.toISOString().slice(0, 10))
+    );
+
     for (let i = 0; i < 365; i++) {
-      const sd = allDays.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      const dateStr = cursor.toISOString().slice(0, 10);
+      if (completedDateStrings.has(dateStr)) {
         streak++;
         cursor.setDate(cursor.getDate() - 1);
       } else {
@@ -578,27 +585,45 @@ export const studyPlanner = {
       };
     }
 
-    const tasks = await prisma.studyTask.findMany({
-      where: {
-        studyDayId: { in: plan.days.map((d) => d.id) },
-      },
-    });
+    // OPTIMIZATION: Use database aggregations via aggregate() with groupBy() behavior effectively
+    // achieved by making conditional counts, avoiding fetching all studyTask records into memory
+    // just to run array .reduce() calculations on them.
+    const studyDayIds = plan.days.map((d) => d.id);
+    const [aggAll, aggCompleted] = await Promise.all([
+      prisma.studyTask.aggregate({
+        where: { studyDayId: { in: studyDayIds } },
+        _sum: { minutes: true },
+        _count: { _all: true },
+      }),
+      prisma.studyTask.aggregate({
+        where: { studyDayId: { in: studyDayIds }, isComplete: true },
+        _sum: { minutes: true },
+        _count: { _all: true },
+      })
+    ]);
 
-    const totalMinutes = tasks.reduce((s, t) => s + t.minutes, 0);
-    const completedMinutes = tasks.filter((t) => t.isComplete).reduce((s, t) => s + t.minutes, 0);
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.isComplete).length;
+    const totalMinutes = aggAll._sum.minutes || 0;
+    const completedMinutes = aggCompleted._sum.minutes || 0;
+    const totalTasks = aggAll._count._all || 0;
+    const completedTasks = aggCompleted._count._all || 0;
     const totalDays = plan.days.length;
     const completedDays = plan.days.filter((d) => d.isComplete).length;
 
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
+
+    // OPTIMIZATION: Pre-compute a Set of formatted date strings for completed days to
+    // enable O(1) lookups instead of O(N^2) array .find() operations inside the loop.
+    const completedDateStrings = new Set(
+      plan.days
+        .filter((d) => d.isComplete)
+        .map((d) => d.date.toISOString().slice(0, 10))
+    );
+
     for (let i = 0; i < 365; i++) {
-      const sd = plan.days.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      const dateStr = cursor.toISOString().slice(0, 10);
+      if (completedDateStrings.has(dateStr)) {
         streak++;
       } else {
         break;
