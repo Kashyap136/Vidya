@@ -91,27 +91,31 @@ export const quizService = {
           },
         });
 
-        for (let i = 0; i < validated.questions.length; i++) {
-          const q = validated.questions[i];
+        // ⚡ Performance optimization: Use createMany for bulk inserting questions to avoid N+1 queries.
+        const questionsData = validated.questions.map((q, i) => {
           const matchedTopic = matchTopic(q.topicTitle ?? "");
           const correctIndex = q.options.findIndex((o) => o.isCorrect);
 
-          await tx.quizQuestion.create({
-            data: {
-              quizId: created.id,
-              topicId: matchedTopic?.id ?? null,
-              questionText: q.questionText,
-              options: q.options.map((o, idx) => ({
-                text: o.text,
-                isCorrect: idx === correctIndex,
-              })),
-              explanation: q.explanation,
-              difficulty: q.difficulty as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",
-              estimatedSeconds: q.estimatedSeconds,
-              order: i,
-              createdBy: audit?.userId ?? null,
-              updatedBy: audit?.userId ?? null,
-            },
+          return {
+            quizId: created.id,
+            topicId: matchedTopic?.id ?? null,
+            questionText: q.questionText,
+            options: q.options.map((o, idx) => ({
+              text: o.text,
+              isCorrect: idx === correctIndex,
+            })) as unknown as Prisma.InputJsonValue,
+            explanation: q.explanation,
+            difficulty: q.difficulty as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",
+            estimatedSeconds: q.estimatedSeconds,
+            order: i,
+            createdBy: audit?.userId ?? null,
+            updatedBy: audit?.userId ?? null,
+          };
+        });
+
+        if (questionsData.length > 0) {
+          await tx.quizQuestion.createMany({
+            data: questionsData,
           });
         }
 
