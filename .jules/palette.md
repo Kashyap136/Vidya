@@ -1,0 +1,4 @@
+
+## 2026-09-18 - Form Input Accessibility & Custom Clear Actions
+**Learning:** We noticed custom interactive elements inside inputs (like password visibility toggles and search clear buttons) were difficult to use with keyboards. They were missing explicit focus states, had negative tab indexes, and lacked keyboard shortcuts to clear input fields. Furthermore, not adding `type="button"` to these elements could cause unintended form submissions.
+**Action:** When creating interactive components with internal clear actions or toggles, add an explicit 'Escape' keyboard shortcut using `e.stopPropagation()` to clear the input, ensure the clear/toggle button has `type='button'` to prevent unintended form submissions, remove `tabIndex={-1}` so it is reachable, and include explicit focus-visible UI states (`focus-visible:outline-none focus-visible:ring-2`).
