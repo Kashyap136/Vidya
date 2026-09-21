@@ -526,14 +526,17 @@ export const studyPlanner = {
     );
     const overallProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
+    // Performance Optimization: Convert O(N^2) streak calculation to O(N) by pre-computing a Set of completed dates
+    const completedDates = new Set(
+      allDays.filter((d) => d.isComplete).map((d) => d.date.toISOString().slice(0, 10))
+    );
+
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
     for (let i = 0; i < 365; i++) {
-      const sd = allDays.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      const cursorDateStr = cursor.toISOString().slice(0, 10);
+      if (completedDates.has(cursorDateStr)) {
         streak++;
         cursor.setDate(cursor.getDate() - 1);
       } else {
@@ -578,27 +581,49 @@ export const studyPlanner = {
       };
     }
 
-    const tasks = await prisma.studyTask.findMany({
+    const taskStats = await prisma.studyTask.aggregate({
       where: {
         studyDayId: { in: plan.days.map((d) => d.id) },
       },
+      _sum: {
+        minutes: true,
+      },
+      _count: {
+        _all: true,
+      },
     });
 
-    const totalMinutes = tasks.reduce((s, t) => s + t.minutes, 0);
-    const completedMinutes = tasks.filter((t) => t.isComplete).reduce((s, t) => s + t.minutes, 0);
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.isComplete).length;
+    const completedTaskStats = await prisma.studyTask.aggregate({
+      where: {
+        studyDayId: { in: plan.days.map((d) => d.id) },
+        isComplete: true,
+      },
+      _sum: {
+        minutes: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    const totalMinutes = taskStats._sum.minutes || 0;
+    const completedMinutes = completedTaskStats._sum.minutes || 0;
+    const totalTasks = taskStats._count._all;
+    const completedTasks = completedTaskStats._count._all;
     const totalDays = plan.days.length;
     const completedDays = plan.days.filter((d) => d.isComplete).length;
+
+    // Performance Optimization: Convert O(N^2) streak calculation to O(N) by pre-computing a Set of completed dates
+    const completedDates = new Set(
+      plan.days.filter((d) => d.isComplete).map((d) => d.date.toISOString().slice(0, 10))
+    );
 
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
     for (let i = 0; i < 365; i++) {
-      const sd = plan.days.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      const cursorDateStr = cursor.toISOString().slice(0, 10);
+      if (completedDates.has(cursorDateStr)) {
         streak++;
       } else {
         break;
