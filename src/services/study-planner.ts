@@ -529,11 +529,14 @@ export const studyPlanner = {
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
+    // ⚡ Bolt Optimization: Replaced O(N^2) array `.find` with O(1) Set lookup
+    // Impact: Avoids N^2 traversal when calculating long streaks.
+    const completedDates = new Set(
+      allDays.filter((d) => d.isComplete).map((d) => d.date.toISOString().slice(0, 10))
+    );
     for (let i = 0; i < 365; i++) {
-      const sd = allDays.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      const cursorDateStr = cursor.toISOString().slice(0, 10);
+      if (completedDates.has(cursorDateStr)) {
         streak++;
         cursor.setDate(cursor.getDate() - 1);
       } else {
@@ -578,27 +581,47 @@ export const studyPlanner = {
       };
     }
 
-    const tasks = await prisma.studyTask.findMany({
+    // ⚡ Bolt Optimization: Offloaded calculations from memory `.reduce()` to Database Aggregation.
+    // Impact: Resolves high memory overhead and possible out-of-memory errors on large collections.
+    const taskStats = await prisma.studyTask.groupBy({
+      by: ["isComplete"],
       where: {
         studyDayId: { in: plan.days.map((d) => d.id) },
       },
+      _sum: { minutes: true },
+      _count: { _all: true },
     });
 
-    const totalMinutes = tasks.reduce((s, t) => s + t.minutes, 0);
-    const completedMinutes = tasks.filter((t) => t.isComplete).reduce((s, t) => s + t.minutes, 0);
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.isComplete).length;
+    let totalMinutes = 0;
+    let completedMinutes = 0;
+    let totalTasks = 0;
+    let completedTasks = 0;
+
+    for (const group of taskStats) {
+      const mins = group._sum.minutes || 0;
+      const count = group._count._all;
+      totalMinutes += mins;
+      totalTasks += count;
+      if (group.isComplete) {
+        completedMinutes += mins;
+        completedTasks += count;
+      }
+    }
+
     const totalDays = plan.days.length;
     const completedDays = plan.days.filter((d) => d.isComplete).length;
 
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
+    // ⚡ Bolt Optimization: Replaced O(N^2) array `.find` with O(1) Set lookup
+    // Impact: Avoids N^2 traversal when calculating long streaks.
+    const completedDates = new Set(
+      plan.days.filter((d) => d.isComplete).map((d) => d.date.toISOString().slice(0, 10))
+    );
     for (let i = 0; i < 365; i++) {
-      const sd = plan.days.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      const cursorDateStr = cursor.toISOString().slice(0, 10);
+      if (completedDates.has(cursorDateStr)) {
         streak++;
       } else {
         break;
