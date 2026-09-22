@@ -1,0 +1,4 @@
+## 2024-10-25 - Prevent O(N^2) Loop Lookup Bottlenecks and Excessive Memory Allocation in Analytics Helpers
+
+**Learning:** When generating metrics (like calculating streaks over consecutive dates) inside analytics endpoints, iteratively calling array `.find()` on full datasets for every lookup turns an O(N) traversal into an O(N^2) CPU bottleneck. Similarly, retrieving full database relationship arrays into memory with `findMany` just to calculate sums or counts can lead to significant memory bloat and out-of-memory errors on large collections.
+**Action:** Always precompute lookups into `Set`s or Maps (for O(1) lookups) before the iteration loop. Always use database-level aggregation functions like `groupBy` (with `_sum`, `_count`) instead of downloading all rows and running `.reduce()` in memory.
