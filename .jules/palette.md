@@ -1,0 +1,3 @@
+## 2024-05-24 - Improve search bar clear action accessibility
+**Learning:** Interactive components with internal clear actions (like a search bar) often lack explicit keyboard shortcuts to clear the input, miss the `type='button'` attribute which can cause unintended form submissions, and lack explicit focus-visible UI states for keyboard accessibility.
+**Action:** When implementing interactive components with internal clear actions, add an explicit 'Escape' keyboard shortcut using `e.stopPropagation()` to clear the input, ensure the clear button has `type='button'`, and include explicit focus-visible UI states (`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`).
