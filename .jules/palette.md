@@ -1,0 +1,3 @@
+## 2024-05-24 - [Remove negative tabIndex on Password Toggle]
+**Learning:** Setting `tabIndex={-1}` on buttons or internal interactive elements of custom inputs (like a password visibility toggle) completely breaks keyboard navigation and makes them inaccessible to keyboard-only and screen reader users. The browser's default focus order should be allowed to apply.
+**Action:** Always ensure that interactive elements (like the password toggle button) do not have `tabIndex={-1}` set, which makes them undiscoverable via the Tab key. Allowing natural tabbing order ensures proper accessibility for all users.
