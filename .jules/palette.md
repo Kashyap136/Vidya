@@ -1,0 +1,3 @@
+## 2024-06-25 - SearchBar accessibility & keyboard shortcuts
+**Learning:** When implementing interactive components with internal clear actions (like a search bar), users expect standard keyboard shortcuts like 'Escape' to clear the input value. Additionally, custom clear buttons inside input wrappers often miss `type="button"` and `focus-visible` styling, hindering screen reader users and keyboard navigation.
+**Action:** Add explicit 'Escape' keyboard shortcut that conditionally calls `e.stopPropagation()` and clears the input only if a value exists (e.g., `if (e.key === 'Escape' && inputValue)`). Ensure the clear button has `type='button'` to prevent unintended form submissions, and include explicit `focus-visible` UI states.
