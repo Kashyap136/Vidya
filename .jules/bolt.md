@@ -1,0 +1,3 @@
+## 2024-06-25 - Push Aggregations to Database & Use O(1) Lookups for Date Streaks
+**Learning:** In Prisma queries inside nested services, fetching large record sets via `findMany` just to `reduce()` them for calculations (like sums or counts) severely degrades application memory and network performance as data scales. Also, using array `.find()` inside date loops creates an O(N^2) bottleneck.
+**Action:** When calculating stats, use `prisma.model.groupBy` or `aggregate` with `_sum` and `_count` to push the computational heavy lifting directly to the Postgres database. For iteration-heavy client logic, explicitly pre-compute a `Set` of distinct primitive values (like `toISOString().slice(0, 10)`) for O(1) lookups instead of nested array `.find()`.
