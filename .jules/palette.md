@@ -1,0 +1,3 @@
+## 2024-05-24 - Removed Negative tabIndex on Interactive Elements
+**Learning:** Using `tabIndex={-1}` on internal interactive elements of custom inputs (like a password visibility toggle) completely breaks keyboard navigation and makes them inaccessible to keyboard-only and screen reader users.
+**Action:** Never use `tabIndex={-1}` on buttons. Allow the browser's default focus order to apply to ensure all interactive elements remain accessible.
