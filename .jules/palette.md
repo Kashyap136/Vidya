@@ -1,0 +1,3 @@
+## 2024-10-06 - SearchBar clear button and escape handling
+**Learning:** Interactive clear actions need explicit `type="button"` to prevent accidental form submission and require explicit `focus-visible` UI states for keyboard accessibility. A clear button search component also needs an `Escape` keyboard shortcut that clears the input and prevents event propagation.
+**Action:** When implementing interactive components with internal clear actions, ensure an `Escape` keyboard shortcut is present that conditionally calls `e.stopPropagation()` and clears the input only if a value exists. Ensure clear buttons have `type='button'` and explicit `focus-visible` UI states.
