@@ -578,27 +578,52 @@ export const studyPlanner = {
       };
     }
 
-    const tasks = await prisma.studyTask.findMany({
+    // ⚡ Bolt: Use Prisma aggregate to calculate totals in the DB to avoid pulling all task records into memory
+    const agg = await prisma.studyTask.aggregate({
       where: {
         studyDayId: { in: plan.days.map((d) => d.id) },
       },
+      _sum: {
+        minutes: true,
+      },
+      _count: {
+        _all: true,
+      },
     });
 
-    const totalMinutes = tasks.reduce((s, t) => s + t.minutes, 0);
-    const completedMinutes = tasks.filter((t) => t.isComplete).reduce((s, t) => s + t.minutes, 0);
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.isComplete).length;
+    const completedAgg = await prisma.studyTask.aggregate({
+      where: {
+        studyDayId: { in: plan.days.map((d) => d.id) },
+        isComplete: true,
+      },
+      _sum: {
+        minutes: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    const totalMinutes = agg._sum.minutes || 0;
+    const completedMinutes = completedAgg._sum.minutes || 0;
+    const totalTasks = agg._count._all || 0;
+    const completedTasks = completedAgg._count._all || 0;
     const totalDays = plan.days.length;
     const completedDays = plan.days.filter((d) => d.isComplete).length;
+
+    // ⚡ Bolt: Use a Set for completed dates for O(1) lookups inside the 365-day iteration loop
+    const completedDateSet = new Set(
+      plan.days
+        .filter((d) => d.isComplete)
+        .map((d) => d.date.toISOString().slice(0, 10))
+    );
 
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
     for (let i = 0; i < 365; i++) {
-      const sd = plan.days.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      const cursorDateString = cursor.toISOString().slice(0, 10);
+      if (completedDateSet.has(cursorDateString)) {
         streak++;
       } else {
         break;
