@@ -1,0 +1,4 @@
+💡 What: Optimized the quiz generation service by replacing the sequential `tx.quizQuestion.create` inside a `for` loop with a single `tx.quizQuestion.createMany` call. Also mapped the `options` array correctly using `as unknown as Prisma.InputJsonValue` to satisfy TypeScript.
+🎯 Why: Creating records inside a loop causes an N+1 query problem, which severely bottlenecks database performance and blocks execution during bulk insertions. Pushing the loop down to the database layer minimizes network round-trips.
+📊 Impact: Considerably faster Quiz generation. Replaces O(N) database insertion trips with O(1) trip per quiz generated, reducing server load and network delay.
+🔬 Measurement: Run quiz generation profiling and observe the number of SQL queries generated and total time taken by the request, verifying that network calls during save are reduced.
