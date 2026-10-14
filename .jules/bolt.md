@@ -1,0 +1,3 @@
+## 2026-10-14 - Optimize Streak Calculation O(N^2) Bottleneck
+**Learning:** Found a severe performance bottleneck where iterating over dates dynamically used an inner `array.find()` loop combined with repeated `Date.toISOString().slice(0, 10)` allocations inside a `for` loop, causing an O(N^2) operation when calculating streaks over large histories.
+**Action:** Always pre-compute and store formatted date string representations of completed elements in a `Set` prior to entering time-series loops (e.g., streak calculations). Using `Set.has(dateString)` shifts the time complexity from O(N * 365) to O(N + 365) with O(1) lookups, severely cutting down on allocations and traversal time.
