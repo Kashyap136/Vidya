@@ -1,0 +1,3 @@
+## 2023-10-16 - Search Bar Clear Interaction and Focus
+**Learning:** Search bars with clear buttons often lack keyboard accessibility. Users expect the 'Escape' key to clear an active search input, and internal clear buttons must not trigger accidental form submissions (need `type="button"`) and must have explicit focus states (`focus-visible`) for keyboard navigation.
+**Action:** When implementing custom inputs with internal actions (like clear buttons or password toggles), add 'Escape' key shortcuts that conditionally call `e.stopPropagation()` and explicitly set `type="button"` and `focus-visible` states on the internal buttons.
