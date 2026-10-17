@@ -1,0 +1,3 @@
+## 2024-05-24 - Avoid Memory Bottlenecks in StudyPlanner Aggregations
+**Learning:** In `study-planner.ts` (`getStats`), using `prisma.studyTask.findMany` to fetch all tasks and calculate totals using `.reduce` in memory causes O(N) memory consumption and blocks the thread. Additionally, calculating streaks by calling `.find()` on an array of dates inside a 365-day loop creates an O(N^2) bottleneck.
+**Action:** Use database aggregation functions (`prisma.studyTask.aggregate` or `groupBy`) to push summation to the database. For date streaks, pre-compute a `Set` of completed date strings (e.g., `date.toISOString().slice(0,10)`) before the loop to enable O(1) lookups and prevent performance degradation.

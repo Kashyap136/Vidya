@@ -578,27 +578,41 @@ export const studyPlanner = {
       };
     }
 
-    const tasks = await prisma.studyTask.findMany({
-      where: {
-        studyDayId: { in: plan.days.map((d) => d.id) },
-      },
-    });
+    // ⚡ Bolt: Optimize aggregates by pushing summation to DB instead of in-memory JS reduction
+    const [taskAggregates, completedTaskAggregates] = await Promise.all([
+      prisma.studyTask.aggregate({
+        where: { studyDayId: { in: plan.days.map((d) => d.id) } },
+        _sum: { minutes: true },
+        _count: { _all: true },
+      }),
+      prisma.studyTask.aggregate({
+        where: { studyDayId: { in: plan.days.map((d) => d.id) }, isComplete: true },
+        _sum: { minutes: true },
+        _count: { _all: true },
+      }),
+    ]);
 
-    const totalMinutes = tasks.reduce((s, t) => s + t.minutes, 0);
-    const completedMinutes = tasks.filter((t) => t.isComplete).reduce((s, t) => s + t.minutes, 0);
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.isComplete).length;
+    const totalMinutes = taskAggregates._sum.minutes || 0;
+    const completedMinutes = completedTaskAggregates._sum.minutes || 0;
+    const totalTasks = taskAggregates._count._all;
+    const completedTasks = completedTaskAggregates._count._all;
     const totalDays = plan.days.length;
     const completedDays = plan.days.filter((d) => d.isComplete).length;
 
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
+
+    // ⚡ Bolt: Use a pre-computed Set of O(1) lookups instead of finding inside the 365-day loop
+    const completedDateStrings = new Set(
+      plan.days
+        .filter((d) => d.isComplete)
+        .map((d) => d.date.toISOString().slice(0, 10))
+    );
+
     for (let i = 0; i < 365; i++) {
-      const sd = plan.days.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      const cursorString = cursor.toISOString().slice(0, 10);
+      if (completedDateStrings.has(cursorString)) {
         streak++;
       } else {
         break;
