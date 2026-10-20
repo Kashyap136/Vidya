@@ -1,0 +1,3 @@
+## 2024-05-18 - Search Bar Clear Button Accessibility
+**Learning:** Interactive components like search bars need keyboard accessibility on their internal clear actions. Missing an explicit Escape shortcut forces users to tab to the clear button to dismiss input. Also, internal buttons inside forms need `type="button"` to prevent unintended submissions, and custom clear buttons need explicit `focus-visible` styles so keyboard-only users can see when they have focus.
+**Action:** When implementing custom inputs with internal actions (like clear buttons or password toggles), always add keyboard shortcut support (`Escape` for clear), ensure the button has `type="button"`, and verify `focus-visible` states are present.
