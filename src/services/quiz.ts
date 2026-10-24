@@ -247,8 +247,25 @@ export const quizService = {
     const quizzes = await this.getBySyllabus(syllabusId, userId);
     const performance: Record<string, { correct: number; total: number }> = {};
 
+    if (quizzes.length === 0) return performance;
+
+    const quizIds = quizzes.map((q) => q.id as string);
+    // Bolt: Batched database query to avoid N+1 problem fetching attempts for each quiz
+    const allAttempts = await quizAttemptRepository.findMany({
+      quizId: { in: quizIds }
+    });
+
+    const attemptsByQuiz = new Map<string, Record<string, unknown>[]>();
+    for (const attempt of allAttempts) {
+      const qId = attempt.quizId as string;
+      if (!attemptsByQuiz.has(qId)) {
+        attemptsByQuiz.set(qId, []);
+      }
+      attemptsByQuiz.get(qId)!.push(attempt);
+    }
+
     for (const quiz of quizzes) {
-      const attempts = await quizAttemptRepository.findByQuizId(quiz.id as string);
+      const attempts = attemptsByQuiz.get(quiz.id as string) || [];
       const completedAttempts = attempts.filter(
         (a) => a.completedAt != null,
       ) as Array<Record<string, unknown>>;

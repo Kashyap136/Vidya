@@ -1,0 +1,3 @@
+## 2024-07-31 - Resolved N+1 Problem in Quiz Performance Calculation
+**Learning:** Found an N+1 query vulnerability when calculating `getTopicPerformance` in `src/services/quiz.ts`. It iterated through each quiz retrieved from a syllabus and executed a new database request for its attempts, leading to `N` subsequent database queries.
+**Action:** Replaced the loop querying attempts for each individual quiz ID with a single `findMany({ quizId: { in: quizIds } })` query, effectively batching data loading and returning results in a single, predictable operation. I'll maintain vigilance for these iteration-based queries that can be converted into standard SQL `IN` queries.
