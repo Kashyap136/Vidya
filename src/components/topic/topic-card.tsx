@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CheckCircle2, Circle, Clock, ArrowUpDown } from "lucide-react";
+import { CheckCircle2, Circle, Clock, ArrowUpDown, Loader2 } from "lucide-react";
 import { toggleTopicCompletionAction } from "@/actions";
 
 interface TopicCardProps {
@@ -74,7 +74,9 @@ export function TopicCard({ topic, onToggle }: TopicCardProps) {
             disabled={isPending}
             aria-label={completed ? "Mark as incomplete" : "Mark as complete"}
           >
-            {completed ? (
+            {isPending ? (
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            ) : completed ? (
               <CheckCircle2 className="h-5 w-5 text-green-500" />
             ) : (
               <Circle className="h-5 w-5 text-muted-foreground" />
