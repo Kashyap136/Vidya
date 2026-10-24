@@ -1,0 +1,3 @@
+## 2025-02-12 - Accessible File Upload Zones
+**Learning:** Custom interactive components acting as buttons (like `role="button"` on `div` elements) must explicitly prevent default browser behavior (`e.preventDefault()`) for `Space` and `Enter` keys to avoid unexpected page scrolling during keyboard activation. They also need dynamic `tabIndex` management for disabled states and clear `focus-visible` styling for a11y.
+**Action:** When implementing custom interactive elements (drag/drop zones, clickable cards), ensure they include `e.preventDefault()` on activation keys, `tabIndex={disabled ? -1 : 0}`, `aria-disabled`, and `focus-visible` styling using Tailwind.
