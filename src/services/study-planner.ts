@@ -222,18 +222,22 @@ export const studyPlanner = {
         });
 
         const topicMap = new Map(scoredTopics.map((t) => [t.id, t]));
-        for (let j = 0; j < sd.topicIds.length; j++) {
-          const topicId = sd.topicIds[j];
+
+        const tasksData = sd.topicIds.map((topicId, j) => {
           const topic = topicMap.get(topicId);
-          await tx.studyTask.create({
-            data: {
-              studyDayId: day.id,
-              topicId,
-              minutes: topic?.estimatedMinutes || 30,
-              order: j,
-              createdBy: audit?.userId ?? null,
-              updatedBy: audit?.userId ?? null,
-            },
+          return {
+            studyDayId: day.id,
+            topicId,
+            minutes: topic?.estimatedMinutes || 30,
+            order: j,
+            createdBy: audit?.userId ?? null,
+            updatedBy: audit?.userId ?? null,
+          };
+        });
+
+        if (tasksData.length > 0) {
+          await tx.studyTask.createMany({
+            data: tasksData,
           });
         }
       }
@@ -340,18 +344,22 @@ export const studyPlanner = {
         newDayIds.push(day.id);
 
         const topicMap = new Map(scoredTopics.map((t) => [t.id, t]));
-        for (let j = 0; j < sd.topicIds.length; j++) {
-          const topicId = sd.topicIds[j];
+
+        const tasksData = sd.topicIds.map((topicId, j) => {
           const topic = topicMap.get(topicId);
-          await tx.studyTask.create({
-            data: {
-              studyDayId: day.id,
-              topicId,
-              minutes: topic?.estimatedMinutes || 30,
-              order: j,
-              createdBy: userId,
-              updatedBy: userId,
-            },
+          return {
+            studyDayId: day.id,
+            topicId,
+            minutes: topic?.estimatedMinutes || 30,
+            order: j,
+            createdBy: userId,
+            updatedBy: userId,
+          };
+        });
+
+        if (tasksData.length > 0) {
+          await tx.studyTask.createMany({
+            data: tasksData,
           });
         }
       }
