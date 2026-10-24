@@ -1,0 +1,3 @@
+## 2024-08-04 - Explicit Keyboard Focus Indicators for Raw Elements
+**Learning:** Interactive elements that are not part of the standard `shadcn/ui` components (like raw `Link` or `button` tags used in navigation headers) often lack default keyboard focus indicators, making the site difficult to navigate for keyboard users.
+**Action:** Always ensure that custom interactive elements explicitly include `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2` (and appropriate rounding like `rounded-sm` or `rounded-md`) to match the focus states of standard UI components.

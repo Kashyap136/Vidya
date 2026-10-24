@@ -58,7 +58,7 @@ export function Header({ user }: HeaderProps) {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl">
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
             Vidya
           </Link>
           <nav className="hidden md:flex items-center gap-6">
@@ -67,7 +67,7 @@ export function Header({ user }: HeaderProps) {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
+                  "text-sm font-medium transition-colors hover:text-primary rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   pathname === link.href ? "text-foreground" : "text-muted-foreground",
                 )}
               >
@@ -82,7 +82,7 @@ export function Header({ user }: HeaderProps) {
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="flex items-center gap-2 rounded-full p-1 hover:bg-muted transition-colors"
+                className="flex items-center gap-2 rounded-full p-1 hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 aria-label="User menu"
                 aria-expanded={menuOpen}
               >
@@ -105,7 +105,7 @@ export function Header({ user }: HeaderProps) {
                   <Link
                     href="/dashboard"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-muted transition-colors"
+                    className="flex items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <LayoutDashboard className="h-4 w-4" />
                     Dashboard
@@ -113,7 +113,7 @@ export function Header({ user }: HeaderProps) {
                   <Link
                     href="/dashboard/syllabi"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-muted transition-colors"
+                    className="flex items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <User className="h-4 w-4" />
                     My Syllabuses
@@ -121,7 +121,7 @@ export function Header({ user }: HeaderProps) {
                   <form action="/api/auth/signout" method="POST" className="w-full">
                     <button
                       type="submit"
-                      className="flex w-full items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-muted transition-colors text-muted-foreground"
+                      className="flex w-full items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-muted transition-colors text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
                       <LogOut className="h-4 w-4" />
                       Sign Out
@@ -141,7 +141,7 @@ export function Header({ user }: HeaderProps) {
             </div>
           )}
           <button
-            className="md:hidden flex items-center justify-center p-1.5 rounded-md hover:bg-muted transition-colors"
+            className="md:hidden flex items-center justify-center p-1.5 rounded-md hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             onClick={() => setMobileNavOpen(!mobileNavOpen)}
             aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileNavOpen}
@@ -158,7 +158,7 @@ export function Header({ user }: HeaderProps) {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "block rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted",
+                  "block rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   pathname === link.href ? "text-foreground bg-muted" : "text-muted-foreground",
                 )}
               >
@@ -168,7 +168,7 @@ export function Header({ user }: HeaderProps) {
             {!user && (
               <Link
                 href="/auth/login"
-                className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors md:hidden"
+                className="block rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 Sign In
               </Link>
