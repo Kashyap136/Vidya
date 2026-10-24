@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, memo } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +40,9 @@ const difficultyColors: Record<string, string> = {
   ADVANCED: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 };
 
-export function TopicCard({ topic, onToggle }: TopicCardProps) {
+// ⚡ Bolt: Memoized TopicCard to prevent unnecessary re-renders of all cards
+// when filtering/sorting topics in the TopicExplorer search input.
+export const TopicCard = memo(function TopicCard({ topic, onToggle }: TopicCardProps) {
   const [isPending, startTransition] = useTransition();
   const completed = topic.completedAt != null;
   const hours = Math.ceil(topic.estimatedMinutes / 60);
@@ -119,4 +121,4 @@ export function TopicCard({ topic, onToggle }: TopicCardProps) {
       </CardContent>
     </Card>
   );
-}
+});
