@@ -1,0 +1,3 @@
+## 2024-05-18 - [Optimizing chained Array operations]
+**Learning:** Found an opportunity to replace multiple `filter` and `reduce` operations with a single-pass `for` loop and a unified `filter` call in `topic-explorer.tsx`. The performance gain comes from reducing intermediate array allocations and redundant iterations over the array elements, particularly useful when filtering lists or computing aggregate stats.
+**Action:** When working with array transformations or aggregations in components, look out for chained higher order functions (like `.filter().map()` or `.filter().reduce()`) and refactor them into a single pass using loops or unified callbacks to improve iteration speed and reduce memory pressure from intermediate allocations.
