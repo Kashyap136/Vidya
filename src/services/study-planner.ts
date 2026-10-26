@@ -529,11 +529,18 @@ export const studyPlanner = {
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
+
+    // Bolt Optimization: Pre-compute completed dates for O(1) lookup
+    // Iterating 365 times and doing an O(N) find inside the loop caused O(N^2) complexity.
+    const completedDates = new Set(
+      allDays
+        .filter((d) => d.isComplete)
+        .map((d) => d.date.toISOString().slice(0, 10))
+    );
+
     for (let i = 0; i < 365; i++) {
-      const sd = allDays.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      const dateStr = cursor.toISOString().slice(0, 10);
+      if (completedDates.has(dateStr)) {
         streak++;
         cursor.setDate(cursor.getDate() - 1);
       } else {
@@ -594,11 +601,18 @@ export const studyPlanner = {
     let streak = 0;
     const cursor = new Date();
     cursor.setHours(0, 0, 0, 0);
+
+    // Bolt Optimization: Pre-compute completed dates for O(1) lookup
+    // Iterating 365 times and doing an O(N) find inside the loop caused O(N^2) complexity.
+    const completedDates = new Set(
+      plan.days
+        .filter((d) => d.isComplete)
+        .map((d) => d.date.toISOString().slice(0, 10))
+    );
+
     for (let i = 0; i < 365; i++) {
-      const sd = plan.days.find(
-        (d) => d.date.toISOString().slice(0, 10) === cursor.toISOString().slice(0, 10),
-      );
-      if (sd?.isComplete) {
+      const dateStr = cursor.toISOString().slice(0, 10);
+      if (completedDates.has(dateStr)) {
         streak++;
       } else {
         break;
