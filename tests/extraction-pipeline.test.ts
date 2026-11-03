@@ -121,7 +121,12 @@ describe("ExtractionPipeline", () => {
     mockPromptBuilder.build.mockReturnValue(mockPrompt);
     mockGemini.generate.mockResolvedValue(mockAiRaw);
     mockAiValidator.validate.mockReturnValue(mockValidated);
-    mockTransactionFn.mockImplementation(async (fn: () => Promise<void>) => fn());
+    mockTransactionFn.mockImplementation(async (fn: (tx: unknown) => Promise<void>) => fn({
+      topic: {
+        deleteMany: vi.fn(),
+        createMany: vi.fn(),
+      }
+    }));
     mockTopicRepo.findBySyllabusId.mockResolvedValue([]);
     mockStudyPlanner.generate.mockResolvedValue(undefined);
     mockQuiz.generate.mockResolvedValue(undefined);
@@ -134,7 +139,8 @@ describe("ExtractionPipeline", () => {
 
     expectSuccessfulResult(result);
 
-    const statusCalls = mockProcessingStatus.update.mock.calls.map((c: unknown[]) => c[1]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const statusCalls = mockProcessingStatus.update.mock.calls.map((c: any) => c[1]);
     expect(statusCalls).toEqual([
       "EXTRACTING",
       "NORMALIZING",
@@ -166,57 +172,75 @@ describe("ExtractionPipeline", () => {
     expect(mockQuiz.generate).toHaveBeenCalledWith(syllabusId, userId, audit);
   });
 
-  it("persists topics inside a transaction with delete+create", async () => {
-    const existingTopics = [
-      { id: "old-1", title: "Old Topic" },
-      { id: "old-2", title: "Obsolete Topic" },
-    ];
-    mockTopicRepo.findBySyllabusId.mockResolvedValue(existingTopics);
+  it("persists topics inside a transaction with deleteMany+createMany", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let capturedTx: any;
+    mockTransactionFn.mockImplementation(async (fn: (tx: unknown) => Promise<void>) => {
+      capturedTx = {
+        topic: {
+          deleteMany: vi.fn(),
+          createMany: vi.fn(),
+        }
+      };
+      return fn(capturedTx);
+    });
 
     await extractionPipeline.process(syllabusId, userId, audit);
 
     expect(mockTransactionFn).toHaveBeenCalled();
-    expect(mockTopicRepo.hardDelete).toHaveBeenCalledTimes(2);
-    expect(mockTopicRepo.hardDelete).toHaveBeenCalledWith("old-1");
-    expect(mockTopicRepo.hardDelete).toHaveBeenCalledWith("old-2");
-    expect(mockTopicRepo.create).toHaveBeenCalledTimes(2);
-    expect(mockTopicRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Data Structures", syllabusId }),
-      audit,
-    );
-    expect(mockTopicRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Algorithms", syllabusId }),
-      audit,
-    );
+    expect(capturedTx.topic.deleteMany).toHaveBeenCalledWith({
+      where: { syllabusId },
+    });
+
+    expect(capturedTx.topic.createMany).toHaveBeenCalledWith({
+      data: expect.arrayContaining([
+        expect.objectContaining({ title: "Data Structures", syllabusId, createdBy: userId, updatedBy: userId }),
+        expect.objectContaining({ title: "Algorithms", syllabusId, createdBy: userId, updatedBy: userId }),
+      ]),
+    });
   });
 
   it("maps AiTopic fields to topic fields correctly", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let capturedTx: any;
+    mockTransactionFn.mockImplementation(async (fn: (tx: unknown) => Promise<void>) => {
+      capturedTx = {
+        topic: {
+          deleteMany: vi.fn(),
+          createMany: vi.fn(),
+        }
+      };
+      return fn(capturedTx);
+    });
+
     await extractionPipeline.process(syllabusId, userId, audit);
 
-    expect(mockTopicRepo.create).toHaveBeenCalledWith(
-      {
-        title: "Data Structures",
-        summary: "Arrays trees graphs",
-        priority: "HIGH",
-        difficulty: "INTERMEDIATE",
-        order: 0,
-        estimatedMinutes: 180,
-        syllabusId,
-      },
-      audit,
-    );
-    expect(mockTopicRepo.create).toHaveBeenCalledWith(
-      {
-        title: "Algorithms",
-        summary: "Sorting searching",
-        priority: "CRITICAL",
-        difficulty: "ADVANCED",
-        order: 1,
-        estimatedMinutes: 300,
-        syllabusId,
-      },
-      audit,
-    );
+    expect(capturedTx.topic.createMany).toHaveBeenCalledWith({
+      data: [
+        {
+          title: "Data Structures",
+          summary: "Arrays trees graphs",
+          priority: "HIGH",
+          difficulty: "INTERMEDIATE",
+          order: 0,
+          estimatedMinutes: 180,
+          syllabusId,
+          createdBy: userId,
+          updatedBy: userId,
+        },
+        {
+          title: "Algorithms",
+          summary: "Sorting searching",
+          priority: "CRITICAL",
+          difficulty: "ADVANCED",
+          order: 1,
+          estimatedMinutes: 300,
+          syllabusId,
+          createdBy: userId,
+          updatedBy: userId,
+        },
+      ],
+    });
   });
 
   // ── Input validation ──────────────────────────────────────────────

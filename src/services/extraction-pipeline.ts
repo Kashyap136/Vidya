@@ -7,7 +7,7 @@ import { aiResponseValidator } from "./ai-response-validator";
 import { processingStatusService } from "./processing-status";
 import { studyPlanner } from "./study-planner";
 import { quizService } from "./quiz";
-import { syllabusRepository, topicRepository } from "@/repositories";
+import { syllabusRepository } from "@/repositories";
 import { transaction } from "@/repositories/transaction";
 import { NotFoundError, UnauthorizedError, ServiceError } from "./errors";
 import { logger } from "@/lib/logger";
@@ -127,22 +127,27 @@ export const extractionPipeline = {
 
     // 6. Persist topics
     stepLog(syllabusId, "Persist topics", "START");
-    await transaction(async () => {
-      const existing = await topicRepository.findBySyllabusId(syllabusId);
-      for (const t of existing) {
-        await topicRepository.hardDelete(t.id as string);
-      }
-      for (let i = 0; i < validated.topics.length; i++) {
-        const t = validated.topics[i];
-        await topicRepository.create({
-          title: t.title,
-          summary: t.description,
-          priority: t.priority,
-          difficulty: t.difficulty,
-          order: i,
-          estimatedMinutes: t.estimatedHours * 60,
-          syllabusId,
-        }, audit);
+    // Optimization: Bulk delete & insert inside transaction
+    await transaction(async (tx: import("@/repositories/transaction").TransactionClient) => {
+      await tx.topic.deleteMany({
+        where: { syllabusId },
+      });
+
+      const topicsData = validated.topics.map((t, i) => ({
+        title: t.title,
+        summary: t.description,
+        priority: t.priority,
+        difficulty: t.difficulty,
+        order: i,
+        estimatedMinutes: t.estimatedHours * 60,
+        syllabusId,
+        ...(audit?.userId ? { createdBy: audit.userId, updatedBy: audit.userId } : {}),
+      }));
+
+      if (topicsData.length > 0) {
+        await tx.topic.createMany({
+          data: topicsData,
+        });
       }
     });
     await processingStatusService.update(syllabusId, "TOPICS_CREATED", { audit });
