@@ -128,7 +128,7 @@ export const extractionPipeline = {
     // 6. Persist topics
     stepLog(syllabusId, "Persist topics", "START");
     // Optimization: Bulk delete & insert inside transaction
-    await transaction(async (tx: import("@/repositories/transaction").TransactionClient) => {
+    await transaction(async (tx) => {
       await tx.topic.deleteMany({
         where: { syllabusId },
       });
