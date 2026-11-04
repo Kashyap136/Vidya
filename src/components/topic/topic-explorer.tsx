@@ -36,15 +36,22 @@ export function TopicExplorer({ topics }: TopicExplorerProps) {
   const [sort, setSort] = useState<SortKey>("order");
 
   const stats = useMemo(() => {
+    // ⚡ Bolt: Optimize stats calculation into a single pass (O(N) instead of O(N) x 4)
     const total = topics.length;
-    const completed = topics.filter((t) => t.completedAt != null).length;
-    const totalHours = topics.reduce(
-      (sum, t) => sum + Math.ceil((t.estimatedMinutes || 0) / 60),
-      0,
-    );
-    const completedHours = topics
-      .filter((t) => t.completedAt != null)
-      .reduce((sum, t) => sum + Math.ceil((t.estimatedMinutes || 0) / 60), 0);
+    let completed = 0;
+    let totalHours = 0;
+    let completedHours = 0;
+
+    for (const t of topics) {
+      const hours = Math.ceil((t.estimatedMinutes || 0) / 60);
+      totalHours += hours;
+
+      if (t.completedAt != null) {
+        completed++;
+        completedHours += hours;
+      }
+    }
+
     return { total, completed, totalHours, completedHours };
   }, [topics]);
 
