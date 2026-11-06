@@ -57,11 +57,18 @@ export function TopicFilters({
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-9 pr-8"
           aria-label="Search topics"
+          onKeyDown={(e) => {
+            if (e.key === "Escape" && search) {
+              e.stopPropagation();
+              onSearchChange("");
+            }
+          }}
         />
         {search && (
           <button
+            type="button"
             onClick={() => onSearchChange("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
             aria-label="Clear search"
           >
             <X className="h-4 w-4" />

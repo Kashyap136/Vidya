@@ -81,10 +81,17 @@ export function Header({ user }: HeaderProps) {
           {user ? (
             <div className="relative" ref={menuRef}>
               <button
+                type="button"
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="flex items-center gap-2 rounded-full p-1 hover:bg-muted transition-colors"
+                className="flex items-center gap-2 rounded-full p-1 hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label="User menu"
                 aria-expanded={menuOpen}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape" && menuOpen) {
+                    e.stopPropagation();
+                    setMenuOpen(false);
+                  }
+                }}
               >
                 <Avatar className="h-8 w-8">
                   {user.image ? (
@@ -141,10 +148,17 @@ export function Header({ user }: HeaderProps) {
             </div>
           )}
           <button
-            className="md:hidden flex items-center justify-center p-1.5 rounded-md hover:bg-muted transition-colors"
+            type="button"
+            className="md:hidden flex items-center justify-center p-1.5 rounded-md hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             onClick={() => setMobileNavOpen(!mobileNavOpen)}
             aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileNavOpen}
+            onKeyDown={(e) => {
+              if (e.key === "Escape" && mobileNavOpen) {
+                e.stopPropagation();
+                setMobileNavOpen(false);
+              }
+            }}
           >
             {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
