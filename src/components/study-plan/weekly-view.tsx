@@ -27,25 +27,29 @@ function getWeekDays(reference: Date): Date[] {
 }
 
 export function WeeklyView({ days, referenceDate }: WeeklyViewProps) {
+  // ⚡ Bolt: Optimize O(N*M) nested date iterations and repeated string allocations
+  // by pre-computing string keys and doing an O(1) Map lookup
   const weekDays = getWeekDays(referenceDate ? new Date(referenceDate) : new Date());
+  const weekDayKeys = weekDays.map((wd) => wd.toISOString().slice(0, 10));
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+
   const dayMap = new Map(
     days.map((d) => [new Date(d.date).toISOString().slice(0, 10), d]),
   );
 
-  const weekTotal = days
-    .filter((d) => {
-      const dt = new Date(d.date);
-      return weekDays.some((wd) => wd.toISOString().slice(0, 10) === dt.toISOString().slice(0, 10));
-    })
-    .reduce((s, d) => s + d.totalMinutes, 0);
+  let weekTotal = 0;
+  let weekCompleted = 0;
 
-  const weekCompleted = days
-    .filter((d) => {
-      const dt = new Date(d.date);
-      return weekDays.some((wd) => wd.toISOString().slice(0, 10) === dt.toISOString().slice(0, 10));
-    })
-    .filter((d) => d.isComplete)
-    .reduce((s, d) => s + d.totalMinutes, 0);
+  for (const key of weekDayKeys) {
+    const day = dayMap.get(key);
+    if (day) {
+      weekTotal += day.totalMinutes;
+      if (day.isComplete) {
+        weekCompleted += day.totalMinutes;
+      }
+    }
+  }
 
   const weekPercent = weekTotal > 0 ? Math.round((weekCompleted / weekTotal) * 100) : 0;
 
@@ -61,11 +65,11 @@ export function WeeklyView({ days, referenceDate }: WeeklyViewProps) {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-7 gap-1">
-          {weekDays.map((wd) => {
-            const key = wd.toISOString().slice(0, 10);
+          {weekDays.map((wd, i) => {
+            const key = weekDayKeys[i];
             const day = dayMap.get(key);
-            const today = new Date().toISOString().slice(0, 10) === key;
-            const isFuture = wd > new Date();
+            const today = todayKey === key;
+            const isFuture = wd > now;
 
             return (
               <div
