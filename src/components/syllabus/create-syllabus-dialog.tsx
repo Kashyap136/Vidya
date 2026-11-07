@@ -1,5 +1,7 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
+
 import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createSyllabusAction } from "@/actions";
@@ -67,6 +69,7 @@ export function CreateSyllabusDialog({ open, onClose }: CreateSyllabusDialogProp
               Cancel
             </Button>
             <Button type="submit" disabled={pending}>
+              {pending && <Loader2 className="animate-spin" aria-hidden="true" />}
               {pending ? "Creating..." : "Create"}
             </Button>
           </CardFooter>
