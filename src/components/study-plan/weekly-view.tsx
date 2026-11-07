@@ -32,19 +32,17 @@ export function WeeklyView({ days, referenceDate }: WeeklyViewProps) {
     days.map((d) => [new Date(d.date).toISOString().slice(0, 10), d]),
   );
 
+  // ⚡ Bolt: Optimize nested date iteration by pre-computing a Set of formatted strings for O(1) lookups
+  const weekDayStrings = new Set(
+    weekDays.map((wd) => wd.toISOString().slice(0, 10))
+  );
+
   const weekTotal = days
-    .filter((d) => {
-      const dt = new Date(d.date);
-      return weekDays.some((wd) => wd.toISOString().slice(0, 10) === dt.toISOString().slice(0, 10));
-    })
+    .filter((d) => weekDayStrings.has(new Date(d.date).toISOString().slice(0, 10)))
     .reduce((s, d) => s + d.totalMinutes, 0);
 
   const weekCompleted = days
-    .filter((d) => {
-      const dt = new Date(d.date);
-      return weekDays.some((wd) => wd.toISOString().slice(0, 10) === dt.toISOString().slice(0, 10));
-    })
-    .filter((d) => d.isComplete)
+    .filter((d) => d.isComplete && weekDayStrings.has(new Date(d.date).toISOString().slice(0, 10)))
     .reduce((s, d) => s + d.totalMinutes, 0);
 
   const weekPercent = weekTotal > 0 ? Math.round((weekCompleted / weekTotal) * 100) : 0;
