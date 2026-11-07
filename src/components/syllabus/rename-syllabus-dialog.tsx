@@ -1,5 +1,7 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
+
 import { useActionState, useEffect, useId } from "react";
 import { useRouter } from "next/navigation";
 import { renameSyllabusAction } from "@/actions";
@@ -76,6 +78,7 @@ export function RenameSyllabusDialog({ open, onClose, syllabus }: RenameSyllabus
               Cancel
             </Button>
             <Button type="submit" disabled={pending}>
+              {pending && <Loader2 className="animate-spin" aria-hidden="true" />}
               {pending ? "Renaming..." : "Rename"}
             </Button>
           </CardFooter>

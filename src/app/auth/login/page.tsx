@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -57,6 +57,7 @@ export default function LoginPage() {
             </CardContent>
             <CardFooter className="flex flex-col gap-4 pb-6">
               <Button type="submit" className="w-full" disabled={pending}>
+                {pending && <Loader2 className="animate-spin" aria-hidden="true" />}
                 {pending ? "Signing in..." : "Sign In"}
               </Button>
               <p className="text-center text-sm text-muted-foreground">

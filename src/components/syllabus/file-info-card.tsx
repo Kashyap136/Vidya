@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { Loader2 } from "lucide-react";
 
 interface FileInfo {
   fileName: string | null;
@@ -88,6 +89,7 @@ export function FileInfoCard({
             onClick={onDownload}
             disabled={downloadPending}
           >
+            {downloadPending && <Loader2 className="animate-spin" aria-hidden="true" />}
             {downloadPending ? "Opening..." : "Download"}
           </Button>
           <Button
@@ -96,6 +98,7 @@ export function FileInfoCard({
             onClick={onReplace}
             disabled={replacePending}
           >
+            {replacePending && <Loader2 className="animate-spin" aria-hidden="true" />}
             {replacePending ? "Replacing..." : "Replace"}
           </Button>
           <Button
@@ -104,6 +107,7 @@ export function FileInfoCard({
             onClick={() => setShowDeleteConfirm(true)}
             disabled={deletePending}
           >
+            {deletePending && <Loader2 className="animate-spin" aria-hidden="true" />}
             {deletePending ? "Deleting..." : "Delete"}
           </Button>
         </div>
