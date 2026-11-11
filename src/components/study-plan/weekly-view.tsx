@@ -32,20 +32,19 @@ export function WeeklyView({ days, referenceDate }: WeeklyViewProps) {
     days.map((d) => [new Date(d.date).toISOString().slice(0, 10), d]),
   );
 
-  const weekTotal = days
-    .filter((d) => {
-      const dt = new Date(d.date);
-      return weekDays.some((wd) => wd.toISOString().slice(0, 10) === dt.toISOString().slice(0, 10));
-    })
-    .reduce((s, d) => s + d.totalMinutes, 0);
+  // ⚡ Bolt: Optimize O(N^2) date conversions by using O(1) dayMap lookups
+  let weekTotal = 0;
+  let weekCompleted = 0;
 
-  const weekCompleted = days
-    .filter((d) => {
-      const dt = new Date(d.date);
-      return weekDays.some((wd) => wd.toISOString().slice(0, 10) === dt.toISOString().slice(0, 10));
-    })
-    .filter((d) => d.isComplete)
-    .reduce((s, d) => s + d.totalMinutes, 0);
+  for (const wd of weekDays) {
+    const day = dayMap.get(wd.toISOString().slice(0, 10));
+    if (day) {
+      weekTotal += day.totalMinutes;
+      if (day.isComplete) {
+        weekCompleted += day.totalMinutes;
+      }
+    }
+  }
 
   const weekPercent = weekTotal > 0 ? Math.round((weekCompleted / weekTotal) * 100) : 0;
 
